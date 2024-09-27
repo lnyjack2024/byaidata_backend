@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-09-25 15:58:19
+ * @LastEditTime: 2024-09-26 17:00:59
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -20,7 +20,7 @@ var server = http.createServer(app);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+// app.set('view engine', 'ejs');
 
 app.use(cors())
 app.use(logger('dev'));
