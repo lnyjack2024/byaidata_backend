@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-02 14:57:18
- * @LastEditTime: 2024-09-25 16:50:42
+ * @LastEditTime: 2024-10-08 16:05:40
  */
 
 module.exports = function(sql, result){
@@ -22,6 +22,8 @@ module.exports = function(sql, result){
         }
         conn.query(sql,(err,res) => {
             if(!err){
+                result(res)
+            }else{
                 result(res)
             }
         });
