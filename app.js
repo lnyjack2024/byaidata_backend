@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-10-08 13:05:40
+ * @LastEditTime: 2024-10-10 13:28:56
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -13,6 +13,8 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var rolesRouter = require('./routes/roles');
+var personsRouter = require('./routes/persons');
 
 var app = express();
 var http = require('http');
@@ -32,6 +34,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 //设置路由前缀
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
+app.use('/role', rolesRouter);
+app.use('/person', personsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

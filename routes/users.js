@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-10-09 10:21:44
+ * @LastEditTime: 2024-10-12 13:28:45
  */
 const express = require('express');
 const moment = require('moment')
@@ -56,7 +56,6 @@ router.post('/add', checkTokenMiddleware, (req, res) => {
         }
       });
     });
-   
 });
 
 module.exports = router;
