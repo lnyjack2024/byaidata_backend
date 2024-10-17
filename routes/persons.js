@@ -2,14 +2,17 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-10-16 10:24:05
+ * @LastEditTime: 2024-10-17 15:27:50
  */
 const express = require('express');
 const moment = require('moment')
+const fs = require('fs')
+const path = require('path');
+const XLSX = require('xlsx');
+const {formidable} = require('formidable');
 const router = express.Router();
 let checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
 const db = require('../util/dbconfig');
-
 //部门列表-查询
 router.get('/department', checkTokenMiddleware, (req, res) => {
   const { name } = req.query
@@ -59,9 +62,83 @@ router.post('/department/delete', checkTokenMiddleware, (req, res) => {
 
 //人员花名册-查询
 router.get('/roster/search', checkTokenMiddleware, (req, res) => {
-  const { name, base, department, service_line, contract_type, role, entry_date } = req.query
-  const sql = `select * from roster`
+    const keysArray = Object.keys(req.query)
+    const entriesArray = Object.entries(req.query)
+    let sql
+    if(keysArray.length > 0){
+      let conditions = ''
+      conditions = entriesArray.map((e)=>{
+        return `${e[0]} LIKE '%${e[1]}%'`
+      }).join(' AND ')
+      sql = `select * from roster WHERE ${conditions}` 
 
+    }else{
+      sql = `select * from roster`
+    }
+    db(sql,(result)=>{
+      if(result.length > 0){
+        res.json({
+          status:1,
+          msg:'请求成功...',
+          data:result
+         })
+      }else{
+        res.json({
+          status:0,
+          msg:'请求失败...',
+         })
+      }
+    });
+});
+
+//人员花名册-离职-查询
+router.get('/dimission/search', checkTokenMiddleware, (req, res) => {
+    const keysArray = Object.keys(req.query)
+    const entriesArray = Object.entries(req.query)
+    let sql
+    if(keysArray.length > 0){
+      let conditions = ''
+      conditions = entriesArray.map((e)=>{
+        return `${e[0]} LIKE '%${e[1]}%'`
+      }).join(' AND ')
+      sql = `select * from roster WHERE ${conditions}` 
+
+    }else{
+      sql = `select * from roster`
+    }
+    console.log(sql)
+    db(sql,(result)=>{
+      if(result.length > 0){
+        res.json({
+          status:1,
+          msg:'请求成功...',
+          data:result
+         })
+      }else{
+        res.json({
+          status:0,
+          msg:'请求失败...',
+         })
+      }
+    });
+});
+
+//人员花名册-黑名单-查询
+router.get('/black/search', checkTokenMiddleware, (req, res) => {
+    const keysArray = Object.keys(req.query)
+    const entriesArray = Object.entries(req.query)
+    let sql
+    if(keysArray.length > 0){
+      let conditions = ''
+      conditions = entriesArray.map((e)=>{
+        return `${e[0]} LIKE '%${e[1]}%'`
+      }).join(' AND ')
+      sql = `select * from roster WHERE ${conditions}` 
+
+    }else{
+      sql = `select * from roster`
+    }
+    console.log(sql)
     db(sql,(result)=>{
       if(result.length > 0){
         res.json({
@@ -153,6 +230,74 @@ router.post('/roster/edit', checkTokenMiddleware, (req, res) => {
     });
 });
 
+//人员花名册-导入
+router.post('/roster/upload', checkTokenMiddleware, (req, res, next) => {
+  //创建form对象
+  const form = formidable({
+    multiples:true,
+    //保存上传的excel文件
+    uploadDir:__dirname + '/../public/excel',
+    keepExtensions:true
+  });
+  form.parse(req, (err, fields, files) => {
+    if(err){
+      next(err);
+      return;
+    }
+    let fileUrl = '../public/excel/' + files.file[0].newFilename
+    const filePath = path.join(__dirname, fileUrl);
+    //创建读入流
+    let rs = fs.createReadStream(filePath)
+    let chunks = [];
+    let chunkLength = 0;
+    rs.on('data',(chunk)=>{
+      chunks.push(chunk);
+      chunkLength += chunk.length;
+    });
+    rs.on('end', () => {
+      const buffer = Buffer.concat(chunks, chunkLength);
+      const workbook = XLSX.read(buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet);
+      let conditions = []
+      let val = ''
+      let val_keys = ''
+      const keysArray = Object.keys(json[0])
+
+      json.map((c)=>{
+        conditions.push(`('${c.name}','${c.age}','${c.time}')`)
+      })
+      val = conditions.map((e)=>{
+        return `${e}`
+      })
+      val_keys = keysArray.map((e)=>{
+        return `${e}`
+      }).join(',')
+    
+      let sql = `INSERT INTO user_test(${val_keys}) VALUES ${val}` 
+      db(sql,(result)=>{
+        if(result){
+          res.json({
+            status:1,
+            msg:'请求成功...',
+            data:result
+           })
+        }else{
+          res.json({
+            status:0,
+            msg:'请求失败...',
+           })
+        }
+      });
+    });
+    
+    rs.on('error', (error) => {
+      console.error(error);
+    });
+  })
+});
+
 //人员画像-查询
 router.get('/portrait/search', checkTokenMiddleware, (req, res) => {
   const { service_line, item } = req.query
@@ -231,7 +376,7 @@ router.post('/portrait/edit', checkTokenMiddleware, (req, res) => {
 router.get('/clocking/search', checkTokenMiddleware, (req, res) => {
   const { service_line, item } = req.query
   const sql = `select 
-                date,base,department,name,
+                id,date,base,department,name,
                 JSON_EXTRACT(data_json,'$.day_1') AS day1, 
                 JSON_EXTRACT(data_json,'$.day_2') AS day2, 
                 JSON_EXTRACT(data_json,'$.day_3') AS day3, 
