@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-10-18 13:16:35
+ * @LastEditTime: 2024-10-21 10:04:24
  */
 var express = require('express');
 var router = express.Router();
@@ -22,7 +22,7 @@ router.post('/login',async (req, res) => {
   //创建当前用户的token
   let token = jwt.sign({ account:username }, secret ,{ expiresIn:60 * 60 * 24 * 7 })
   let dataList = await query( sql ) 
-  if(dataList){
+  if(dataList.length > 0){
     res.json({
       status:1,
       msg:'请求成功...',

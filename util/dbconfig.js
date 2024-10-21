@@ -2,7 +2,7 @@
  * @Description: 数据库配置信息
  * @Author: wangyonghong
  * @Date: 2024-09-02 14:57:18
- * @LastEditTime: 2024-10-18 13:07:33
+ * @LastEditTime: 2024-10-18 17:28:22
  */
 const mysql = require('mysql')
 const pool = mysql.createPool({
@@ -17,7 +17,6 @@ let query = function( sql, values ) {
         pool.getConnection(function( err, connection) { 
             if (err) { 
                 console.log('错误信息:' + err.sqlMessage)
-                reject(err)
                 try{
                     
                 }catch(err){
