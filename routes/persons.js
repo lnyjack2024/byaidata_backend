@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-10-18 17:06:48
+ * @LastEditTime: 2024-10-22 10:07:07
  */
 const express = require('express');
 const moment = require('moment')
@@ -10,8 +10,8 @@ const fs = require('fs')
 const path = require('path');
 const XLSX = require('xlsx');
 const { formidable } = require('formidable');
-const router = express.Router();
-let checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
+var router = express.Router();
+const checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
 const { query } = require('../util/dbconfig');
 
 //部门列表-查询
@@ -312,6 +312,7 @@ router.post('/roster/upload', checkTokenMiddleware, (req, res) => {
   })
   });
 });
+
 //人员画像-查询
 router.get('/portrait/search', checkTokenMiddleware, async (req, res) => {
   const keysArray = Object.keys(req.query)

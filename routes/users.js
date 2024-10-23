@@ -2,12 +2,12 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-10-18 13:27:23
+ * @LastEditTime: 2024-10-22 10:10:10
  */
 const express = require('express');
 const moment = require('moment')
 const router = express.Router();
-let checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
+const checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
 const { query } = require('../util/dbconfig');
 const md5 = require('md5');
 
