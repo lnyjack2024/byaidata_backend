@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-22 09:56:41
- * @LastEditTime: 2024-10-25 16:46:36
+ * @LastEditTime: 2024-10-28 17:57:23
  */
 const express = require('express');
 const moment = require('moment')
@@ -50,9 +50,9 @@ router.post('/item/add', checkTokenMiddleware, async (req, res) => {
             team,auditor,settlement_day,overtime_type,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
   
-    const sql = `insert into items(parent_id,name,service_line,base,project_leader,settlement_type,day,
-                 start_date,delivery_date,delay_date,price,number_people,
-                 team,auditor,settlement_day,overtime_type,detail,create_time)
+    const sql = `insert into items(parent_id,name,service_line,base,item_leader,settlement_type,day,
+                 start_date,delivery_date,delay_date,price,number_workers,
+                 work_team,auditor,settlement_day,overtime_type,detail,create_time)
                  VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${project_leader}','${settlement_type}',
                  '${day}','${start_date}','${delivery_date}','${delay_date}','${price}',
                  '${number_people}','${team}','${auditor}','${settlement_day}','${overtime_type}','${detail}','${time}')`
@@ -149,7 +149,7 @@ router.post('/account/add', checkTokenMiddleware, async (req, res) => {
           day,start_date,delivery_date } = req.body
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
   const sql = `insert into account(item_id,item_name,service_line,base,
-          project_leader,item_status,item_day,item_settlement_type,
+          item_leader,item_status,item_day,item_settlement_type,
           item_settlement_day,item_start_date,item_delivery_date,create_time)
           VALUES('${id}','${name}','${service_line}','${base}','${project_leader}','${status}',
           '${day}','${settlement_type}','${settlement_day}','${start_date}','${delivery_date}','${time}')`

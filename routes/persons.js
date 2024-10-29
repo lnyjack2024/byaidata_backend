@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-10-22 10:07:07
+ * @LastEditTime: 2024-10-28 18:10:52
  */
 const express = require('express');
 const moment = require('moment')
@@ -151,7 +151,7 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
           contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
           is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
           marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
-          emergency_contact_number,bank_card,pasbank_card_detail,is_graduation,is_overseas_student,
+          emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
           is_full_time,school,specialty,graduation_time,education,certificate,
           language_competence,ability,is_two_entry,work_experience,recruitment_channel,
           dimission_date,dimission_type,dimission_reason } = req.body
@@ -161,7 +161,7 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
                contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
                is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
                marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
-               emergency_contact_number,bank_card,pasbank_card_detail,is_graduation,is_overseas_student,
+               emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
                is_full_time,school,specialty,graduation_time,education,certificate,
                language_competence,ability,is_two_entry,work_experience,recruitment_channel,
                dimission_date,dimission_type,dimission_reason,create_time)
@@ -170,7 +170,7 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
               '${position_level}','${is_payment}','${is_employer}','${is_social_security}','${birthday}',
               '${age}','${id_card}','${id_card_time}','${politics_status}','${family_name}','${marital_status}',
               '${number}','${email}','${domicile}','${urrent_address}','${emergency_contact}','${emergency_contact_relation}',
-              '${emergency_contact_number}','${bank_card}','${pasbank_card_detail}','${is_graduation}','${is_overseas_student}',
+              '${emergency_contact_number}','${bank_card}','${bank_card_detail}','${is_graduation}','${is_overseas_student}',
               '${is_full_time}','${school}','${specialty}','${graduation_time}','${education}','${certificate}',
               '${language_competence}','${ability}','${is_two_entry}','${work_experience}','${recruitment_channel}',
               '${dimission_date}','${dimission_type}','${dimission_reason}','${time}')`
