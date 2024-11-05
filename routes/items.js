@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-22 09:56:41
- * @LastEditTime: 2024-10-28 17:57:23
+ * @LastEditTime: 2024-11-05 14:42:28
  */
 const express = require('express');
 const moment = require('moment')
@@ -51,11 +51,11 @@ router.post('/item/add', checkTokenMiddleware, async (req, res) => {
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
   
     const sql = `insert into items(parent_id,name,service_line,base,item_leader,settlement_type,day,
-                 start_date,delivery_date,delay_date,price,number_workers,
-                 work_team,auditor,settlement_day,overtime_type,detail,create_time)
+                 status,start_date,delivery_date,delivery_status,delay_date,price,number_workers,
+                 work_team,auditor,settlement_day,settlement_status,overtime_type,detail,create_time)
                  VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${project_leader}','${settlement_type}',
-                 '${day}','${start_date}','${delivery_date}','${delay_date}','${price}',
-                 '${number_people}','${team}','${auditor}','${settlement_day}','${overtime_type}','${detail}','${time}')`
+                 '${day}','未完成','${start_date}','${delivery_date}','未完成','${delay_date}','${price}',
+                 '${number_people}','${team}','${auditor}','${settlement_day}','未开始','${overtime_type}','${detail}','${time}')`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -145,14 +145,15 @@ router.get('/account/search', checkTokenMiddleware, async (req, res) => {
 
 //项目管理-对账列表-新增
 router.post('/account/add', checkTokenMiddleware, async (req, res) => {
-  const { id,name,service_line,base,project_leader,status,settlement_type,settlement_day,
+  const { id,name,service_line,base,item_leader,status,settlement_type,settlement_status,settlement_day,
           day,start_date,delivery_date } = req.body
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
+  const user = req.user.name
   const sql = `insert into account(item_id,item_name,service_line,base,
-          item_leader,item_status,item_day,item_settlement_type,
-          item_settlement_day,item_start_date,item_delivery_date,create_time)
-          VALUES('${id}','${name}','${service_line}','${base}','${project_leader}','${status}',
-          '${day}','${settlement_type}','${settlement_day}','${start_date}','${delivery_date}','${time}')`
+               item_leader,item_status,item_day,item_settlement_type,item_settlement_status,
+               item_settlement_day,item_start_date,item_delivery_date,reconciler,create_time)
+               VALUES('${id}','${name}','${service_line}','${base}','${item_leader}','${status}',
+               '${day}','${settlement_type}','${settlement_status}','${settlement_day}','${start_date}','${delivery_date}','${user}','${time}')`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -190,12 +191,14 @@ router.post('/account/detail_add', checkTokenMiddleware, async (req, res) => {
   const { item_settlement_type,account_id,account_day,account_period,tasks,settlement_scale,
           amount,price,sum,is_accept,normal_hour,normal_overtime_hour,week_overtime_hour,
           holidays_overtime_hour,times_overtime_hour15,times_overtime_hour2,times_overtime_hour3} = req.body
+  const {item_id,item_name,service_line,base,item_leader,item_settlement_day,item_settlement_status} = req.body.items
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
-  const _account_day = moment(account_day).format('YYYY-MM-DD')
+  const _account_day    = moment(account_day).format('YYYY-MM-DD')
   let _account_period_0 = moment(account_period[0]).format('YYYY-MM-DD')
   let _account_period_1 = moment(account_period[1]).format('YYYY-MM-DD')
-  let _account_period   = _account_period_0 + '至' + _account_period_1
-  const user = req.user.account
+  let _account_period   = _account_period_0 + ' 至 ' + _account_period_1
+  const user = req.user.name
+
   let sql 
   if(item_settlement_type === '计件'){
       sql = `insert into account_detail(account_id,reconciler,account_day,account_period,tasks,
@@ -211,8 +214,23 @@ router.post('/account/detail_add', checkTokenMiddleware, async (req, res) => {
              '${holidays_overtime_hour}','${times_overtime_hour15}','${times_overtime_hour2}','${times_overtime_hour3}',
              '${price}','${sum}','${is_accept}','${time}')`
   }
+
+  //settle结算数据
+  let settle_sql = `insert into settle(item_id,item_name,service_line,base,item_leader,settlement_day,
+                    settlement_type,settlement_scale,settlement_status,reconciler,reconciler_number,account_day,
+                    account_period,tasks,amount,normal_hour,normal_overtime_hour,week_overtime_hour,holidays_overtime_hour,
+                    times_overtime_hour15,times_overtime_hour2,times_overtime_hour3,price,sum,is_accept,
+                    refund_status,invoice_status,create_time) 
+                    VALUES('${item_id}','${item_name}','${service_line}','${base}','${item_leader}',
+                    '${item_settlement_day}','${item_settlement_type}','${settlement_scale}','${item_settlement_status}',
+                    '${user}','','${_account_day}','${_account_period}','${tasks}','${amount ? amount : 0}','${normal_hour ? normal_hour : ''}',
+                    '${normal_overtime_hour ? normal_overtime_hour : ''}','${week_overtime_hour ? week_overtime_hour : ''}',
+                    '${holidays_overtime_hour ? holidays_overtime_hour : ''}','${times_overtime_hour15 ? times_overtime_hour15 : ''}',
+                    '${times_overtime_hour2 ? times_overtime_hour2 : ''}','${times_overtime_hour3 ? times_overtime_hour3 : ''}',
+                    '${price}','${sum}','${is_accept}','未回款','未开票','${time}')`
   let dataList = await query( sql ) 
-  if(dataList){
+  let dataSettleList = await query( settle_sql ) 
+  if(dataList && dataSettleList){
     res.json({
       status:1,
       msg:'请求成功...',

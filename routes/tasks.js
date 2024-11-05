@@ -2,18 +2,17 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2024-11-01 11:25:32
+ * @LastEditTime: 2024-11-04 16:52:38
  */
 const express = require('express');
 const moment = require('moment')
 const router = express.Router();
-const fs = require('fs')
+const fs   = require('fs')
 const path = require('path');
 const XLSX = require('xlsx');
 const { formidable } = require('formidable');
 const checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
 const { query } = require('../util/dbconfig');
-const { count } = require('console');
 
 //任务包管理-任务包列表-查询
 router.get('/task/search', checkTokenMiddleware, async (req, res) => {
@@ -294,7 +293,7 @@ router.get('/task/check', checkTokenMiddleware, async (req, res) => {
 router.post('/task/check_add', checkTokenMiddleware, async (req, res) => {
     const { task_id,date,check_type,is_check } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
-    const user = '王永红'
+    const user = req.user.name
     const sql = `insert into tasks_quality_check(task_id,date,check_type,is_check,user,create_time) 
                  VALUES('${task_id}','${date}','${check_type}','${is_check}','${user}','${time}')`
     let dataList = await query( sql ) 

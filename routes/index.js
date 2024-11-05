@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-10-21 10:04:24
+ * @LastEditTime: 2024-11-04 10:45:29
  */
 var express = require('express');
 var router = express.Router();
@@ -17,10 +17,13 @@ router.get('/', function(req, res, next) {
 //登录
 router.post('/login',async (req, res) => {
   const { username, password } = req.body
+  const _sql = `select name from user where account='${username}'`
+  let _dataList = await query( _sql ) 
+  let name = _dataList[0].name
   const password_md5 = md5(password)
   const sql = `select * from user where account='${username}' and password='${password_md5}'`
   //创建当前用户的token
-  let token = jwt.sign({ account:username }, secret ,{ expiresIn:60 * 60 * 24 * 7 })
+  let token = jwt.sign({ account:username, name:name }, secret ,{ expiresIn:60 * 60 * 24 * 7 })
   let dataList = await query( sql ) 
   if(dataList.length > 0){
     res.json({

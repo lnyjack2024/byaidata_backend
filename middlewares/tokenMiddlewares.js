@@ -2,7 +2,7 @@
  * @Description: token校验
  * @Author: wangyonghong
  * @Date: 2024-10-08 17:42:59
- * @LastEditTime: 2024-10-08 18:37:14
+ * @LastEditTime: 2024-11-04 10:31:35
  */
 const jwt = require('jsonwebtoken')
 const { secret } = require('../config/config')

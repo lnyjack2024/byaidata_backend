@@ -2,7 +2,7 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-10-28 18:03:09
+ * @LastEditTime: 2024-11-04 16:27:50
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -22,6 +22,8 @@ var configRouter = require('./routes/config');
 var itemsRouter = require('./routes/items');
 //任务包管理路由
 var tasksRouter = require('./routes/tasks');
+//财务管理
+var financeRouter = require('./routes/finance');
 
 var app = express();
 var http = require('http');
@@ -45,6 +47,7 @@ app.use('/person', personsRouter);
 app.use('/config', configRouter);
 app.use('/items', itemsRouter);
 app.use('/tasks', tasksRouter);
+app.use('/finance', financeRouter);
 
 app.use(function(req, res, next) {
   next(createError(404));
