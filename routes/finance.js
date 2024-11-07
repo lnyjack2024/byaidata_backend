@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2024-11-06 15:41:28
+ * @LastEditTime: 2024-11-06 15:48:49
  */
 const express = require('express');
 const moment = require('moment')
@@ -138,7 +138,6 @@ router.post('/settle/invoice_upload', checkTokenMiddleware, (req, res) => {
     }
     let fileUrl = '/excel/' + files.file[0].newFilename
     let sql = `UPDATE settle_invoice_detail SET attachment='${fileUrl}' where id='${id}'`
-    console.log(sql)
     let dataList = await query( sql ) 
     if(dataList){
       res.json({

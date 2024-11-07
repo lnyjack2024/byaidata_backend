@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-10-28 18:10:52
+ * @LastEditTime: 2024-11-07 17:47:38
  */
 const express = require('express');
 const moment = require('moment')
@@ -487,6 +487,44 @@ router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
       status:0,
       msg:'请求失败...',
       })
+  }
+});
+
+//人员考勤-新增
+router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
+  let data = req.body
+  let arr = []
+  for (const item of data) {
+    if(item[0] !== null){
+      for(let i = 0 ; i < item.length ; i ++){
+        if(item[i] === null){
+          item[i] = `'0'`
+        }else{
+          item[i] = `'${item[i]}'`
+        }
+      }
+      arr.push(item)
+    }
+  }
+  const val = arr.map((e)=>{
+    return `(${e})` 
+  }).join(',')
+  const sql = `insert into clocking_in_datas(name,years,base,department,day_1,day_2,day_3,day_4,
+               day_5,day_6,day_7,day_8,day_9,day_10,day_11,day_12,day_13,day_14,day_15,day_16,
+               day_17,day_18,day_19,day_20,day_21,day_22,day_23,day_24,day_25,day_26,day_27,day_28,
+               day_29,day_30,day_31)
+               VALUES ${val}`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+    status:1,
+    msg:'请求成功...',
+  })
+  }else{
+    res.json({
+    status:0,
+    msg:'请求失败...',
+  })
   }
 });
 
