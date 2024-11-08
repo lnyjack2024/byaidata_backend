@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-11-07 17:47:38
+ * @LastEditTime: 2024-11-08 15:31:15
  */
 const express = require('express');
 const moment = require('moment')
@@ -394,6 +394,103 @@ router.post('/portrait/edit', checkTokenMiddleware, async (req, res) => {
 });
 
 //人员考勤-查询
+// router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
+//   const keysArray = Object.keys(req.query)
+//   const entriesArray = Object.entries(req.query)
+//   let sql
+//   if(keysArray.length > 0){
+//     let conditions = ''
+//     conditions = entriesArray.map((e)=>{
+//       return `${e[0]} LIKE '%${e[1]}%'`
+//     }).join(' AND ')
+//     sql = `select 
+//         id,date,base,department,name,
+//         JSON_EXTRACT(data_json,'$.day_1') AS day1, 
+//         JSON_EXTRACT(data_json,'$.day_2') AS day2, 
+//         JSON_EXTRACT(data_json,'$.day_3') AS day3, 
+//         JSON_EXTRACT(data_json,'$.day_4') AS day4, 
+//         JSON_EXTRACT(data_json,'$.day_5') AS day5, 
+//         JSON_EXTRACT(data_json,'$.day_6') AS day6, 
+//         JSON_EXTRACT(data_json,'$.day_7') AS day7, 
+//         JSON_EXTRACT(data_json,'$.day_8') AS day8, 
+//         JSON_EXTRACT(data_json,'$.day_9') AS day9,
+//         JSON_EXTRACT(data_json,'$.day_10') AS day10,
+//         JSON_EXTRACT(data_json,'$.day_11') AS day11,
+//         JSON_EXTRACT(data_json,'$.day_12') AS day12,
+//         JSON_EXTRACT(data_json,'$.day_13') AS day13,
+//         JSON_EXTRACT(data_json,'$.day_14') AS day14,
+//         JSON_EXTRACT(data_json,'$.day_15') AS day15,
+//         JSON_EXTRACT(data_json,'$.day_16') AS day16,
+//         JSON_EXTRACT(data_json,'$.day_17') AS day17,
+//         JSON_EXTRACT(data_json,'$.day_18') AS day18,
+//         JSON_EXTRACT(data_json,'$.day_19') AS day19,
+//         JSON_EXTRACT(data_json,'$.day_20') AS day20,
+//         JSON_EXTRACT(data_json,'$.day_21') AS day21,
+//         JSON_EXTRACT(data_json,'$.day_22') AS day22,
+//         JSON_EXTRACT(data_json,'$.day_23') AS day23,
+//         JSON_EXTRACT(data_json,'$.day_24') AS day24,
+//         JSON_EXTRACT(data_json,'$.day_25') AS day25,
+//         JSON_EXTRACT(data_json,'$.day_26') AS day26,
+//         JSON_EXTRACT(data_json,'$.day_27') AS day27,
+//         JSON_EXTRACT(data_json,'$.day_28') AS day28,
+//         JSON_EXTRACT(data_json,'$.day_29') AS day29,
+//         JSON_EXTRACT(data_json,'$.day_30') AS day30,
+//         JSON_EXTRACT(data_json,'$.day_31') AS day31,
+//         create_time
+//     from clocking_in WHERE ${conditions}`
+//   }else{
+//     sql = `select 
+//                 id,date,base,department,name,
+//                 JSON_EXTRACT(data_json,'$.day_1') AS day1, 
+//                 JSON_EXTRACT(data_json,'$.day_2') AS day2, 
+//                 JSON_EXTRACT(data_json,'$.day_3') AS day3, 
+//                 JSON_EXTRACT(data_json,'$.day_4') AS day4, 
+//                 JSON_EXTRACT(data_json,'$.day_5') AS day5, 
+//                 JSON_EXTRACT(data_json,'$.day_6') AS day6, 
+//                 JSON_EXTRACT(data_json,'$.day_7') AS day7, 
+//                 JSON_EXTRACT(data_json,'$.day_8') AS day8, 
+//                 JSON_EXTRACT(data_json,'$.day_9') AS day9,
+//                 JSON_EXTRACT(data_json,'$.day_10') AS day10,
+//                 JSON_EXTRACT(data_json,'$.day_11') AS day11,
+//                 JSON_EXTRACT(data_json,'$.day_12') AS day12,
+//                 JSON_EXTRACT(data_json,'$.day_13') AS day13,
+//                 JSON_EXTRACT(data_json,'$.day_14') AS day14,
+//                 JSON_EXTRACT(data_json,'$.day_15') AS day15,
+//                 JSON_EXTRACT(data_json,'$.day_16') AS day16,
+//                 JSON_EXTRACT(data_json,'$.day_17') AS day17,
+//                 JSON_EXTRACT(data_json,'$.day_18') AS day18,
+//                 JSON_EXTRACT(data_json,'$.day_19') AS day19,
+//                 JSON_EXTRACT(data_json,'$.day_20') AS day20,
+//                 JSON_EXTRACT(data_json,'$.day_21') AS day21,
+//                 JSON_EXTRACT(data_json,'$.day_22') AS day22,
+//                 JSON_EXTRACT(data_json,'$.day_23') AS day23,
+//                 JSON_EXTRACT(data_json,'$.day_24') AS day24,
+//                 JSON_EXTRACT(data_json,'$.day_25') AS day25,
+//                 JSON_EXTRACT(data_json,'$.day_26') AS day26,
+//                 JSON_EXTRACT(data_json,'$.day_27') AS day27,
+//                 JSON_EXTRACT(data_json,'$.day_28') AS day28,
+//                 JSON_EXTRACT(data_json,'$.day_29') AS day29,
+//                 JSON_EXTRACT(data_json,'$.day_30') AS day30,
+//                 JSON_EXTRACT(data_json,'$.day_31') AS day31,
+//                 create_time
+//                 from clocking_in`
+//               }
+//   let dataList = await query( sql ) 
+//   if(dataList){
+//     res.json({
+//       status:1,
+//       msg:'请求成功...',
+//       data:dataList
+//       })
+//   }else{
+//     res.json({
+//       status:0,
+//       msg:'请求失败...',
+//       })
+//   }
+// });
+
+//人员考勤-查询
 router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
   const keysArray = Object.keys(req.query)
   const entriesArray = Object.entries(req.query)
@@ -401,80 +498,12 @@ router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
   if(keysArray.length > 0){
     let conditions = ''
     conditions = entriesArray.map((e)=>{
-      return `${e[0]} LIKE '%${e[1]}%'`
+      return `${e[0]}='${e[1]}'`
     }).join(' AND ')
-    sql = `select 
-        id,date,base,department,name,
-        JSON_EXTRACT(data_json,'$.day_1') AS day1, 
-        JSON_EXTRACT(data_json,'$.day_2') AS day2, 
-        JSON_EXTRACT(data_json,'$.day_3') AS day3, 
-        JSON_EXTRACT(data_json,'$.day_4') AS day4, 
-        JSON_EXTRACT(data_json,'$.day_5') AS day5, 
-        JSON_EXTRACT(data_json,'$.day_6') AS day6, 
-        JSON_EXTRACT(data_json,'$.day_7') AS day7, 
-        JSON_EXTRACT(data_json,'$.day_8') AS day8, 
-        JSON_EXTRACT(data_json,'$.day_9') AS day9,
-        JSON_EXTRACT(data_json,'$.day_10') AS day10,
-        JSON_EXTRACT(data_json,'$.day_11') AS day11,
-        JSON_EXTRACT(data_json,'$.day_12') AS day12,
-        JSON_EXTRACT(data_json,'$.day_13') AS day13,
-        JSON_EXTRACT(data_json,'$.day_14') AS day14,
-        JSON_EXTRACT(data_json,'$.day_15') AS day15,
-        JSON_EXTRACT(data_json,'$.day_16') AS day16,
-        JSON_EXTRACT(data_json,'$.day_17') AS day17,
-        JSON_EXTRACT(data_json,'$.day_18') AS day18,
-        JSON_EXTRACT(data_json,'$.day_19') AS day19,
-        JSON_EXTRACT(data_json,'$.day_20') AS day20,
-        JSON_EXTRACT(data_json,'$.day_21') AS day21,
-        JSON_EXTRACT(data_json,'$.day_22') AS day22,
-        JSON_EXTRACT(data_json,'$.day_23') AS day23,
-        JSON_EXTRACT(data_json,'$.day_24') AS day24,
-        JSON_EXTRACT(data_json,'$.day_25') AS day25,
-        JSON_EXTRACT(data_json,'$.day_26') AS day26,
-        JSON_EXTRACT(data_json,'$.day_27') AS day27,
-        JSON_EXTRACT(data_json,'$.day_28') AS day28,
-        JSON_EXTRACT(data_json,'$.day_29') AS day29,
-        JSON_EXTRACT(data_json,'$.day_30') AS day30,
-        JSON_EXTRACT(data_json,'$.day_31') AS day31,
-        create_time
-    from clocking_in WHERE ${conditions}`
+    sql = `select * from clocking_in_datas WHERE ${conditions}` 
   }else{
-    sql = `select 
-                id,date,base,department,name,
-                JSON_EXTRACT(data_json,'$.day_1') AS day1, 
-                JSON_EXTRACT(data_json,'$.day_2') AS day2, 
-                JSON_EXTRACT(data_json,'$.day_3') AS day3, 
-                JSON_EXTRACT(data_json,'$.day_4') AS day4, 
-                JSON_EXTRACT(data_json,'$.day_5') AS day5, 
-                JSON_EXTRACT(data_json,'$.day_6') AS day6, 
-                JSON_EXTRACT(data_json,'$.day_7') AS day7, 
-                JSON_EXTRACT(data_json,'$.day_8') AS day8, 
-                JSON_EXTRACT(data_json,'$.day_9') AS day9,
-                JSON_EXTRACT(data_json,'$.day_10') AS day10,
-                JSON_EXTRACT(data_json,'$.day_11') AS day11,
-                JSON_EXTRACT(data_json,'$.day_12') AS day12,
-                JSON_EXTRACT(data_json,'$.day_13') AS day13,
-                JSON_EXTRACT(data_json,'$.day_14') AS day14,
-                JSON_EXTRACT(data_json,'$.day_15') AS day15,
-                JSON_EXTRACT(data_json,'$.day_16') AS day16,
-                JSON_EXTRACT(data_json,'$.day_17') AS day17,
-                JSON_EXTRACT(data_json,'$.day_18') AS day18,
-                JSON_EXTRACT(data_json,'$.day_19') AS day19,
-                JSON_EXTRACT(data_json,'$.day_20') AS day20,
-                JSON_EXTRACT(data_json,'$.day_21') AS day21,
-                JSON_EXTRACT(data_json,'$.day_22') AS day22,
-                JSON_EXTRACT(data_json,'$.day_23') AS day23,
-                JSON_EXTRACT(data_json,'$.day_24') AS day24,
-                JSON_EXTRACT(data_json,'$.day_25') AS day25,
-                JSON_EXTRACT(data_json,'$.day_26') AS day26,
-                JSON_EXTRACT(data_json,'$.day_27') AS day27,
-                JSON_EXTRACT(data_json,'$.day_28') AS day28,
-                JSON_EXTRACT(data_json,'$.day_29') AS day29,
-                JSON_EXTRACT(data_json,'$.day_30') AS day30,
-                JSON_EXTRACT(data_json,'$.day_31') AS day31,
-                create_time
-                from clocking_in`
-              }
+    sql = `select * from clocking_in_datas ORDER BY id DESC`
+  }
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -525,6 +554,42 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
     status:0,
     msg:'请求失败...',
   })
+  }
+});
+
+//人员考勤-编辑
+router.post('/clocking/edit', checkTokenMiddleware, async (req, res) => {
+  const { id, field, value } = req.body
+  const sql = `UPDATE clocking_in_datas SET ${field} = '${value}' WHERE id = ${id}`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
+});
+
+//人员考勤-删除
+router.post('/clocking/delete', checkTokenMiddleware, async (req, res) => {
+  const { id } = req.body
+  const sql = `DELETE FROM clocking_in_datas WHERE id = ${id}`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
   }
 });
 
