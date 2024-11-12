@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-10-22 10:10:10
+ * @LastEditTime: 2024-11-11 10:08:25
  */
 const express = require('express');
 const moment = require('moment')
@@ -12,9 +12,13 @@ const { query } = require('../util/dbconfig');
 const md5 = require('md5');
 
 router.get('/search', checkTokenMiddleware, async(req, res) => {
-    const { username, password } = req.body
-    // const sql = `select * from user where account='${username}' and password='${password}'`
-    const sql = `select * from user`
+    const { name } = req.query
+    let sql
+    if(name === undefined || name === ''){
+      sql = `select * from user`
+    }else{
+      sql = `select * from user where name='${name}'`
+    }
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -49,6 +53,23 @@ router.post('/add', checkTokenMiddleware, async(req, res) => {
         msg:'请求失败...',
         })
     }
+});
+
+router.post('/delete', checkTokenMiddleware,async (req, res) => {
+  const { id } = req.body
+  const sql = `delete from user where id = '${id}'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
 });
 
 module.exports = router;
