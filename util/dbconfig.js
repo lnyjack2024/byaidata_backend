@@ -6,11 +6,16 @@
  */
 const mysql = require('mysql')
 const pool = mysql.createPool({
-//   connectionLimit: 50,
-    host: 'localhost',
-    user: 'root',
-    password: 'wyhmysql',
-    database: 'by_mysql'
+    connectionLimit: 50,
+    host: 'rm-uf6a7ab0tn1139ug9.mysql.rds.aliyuncs.com',
+    user: 'test_root',
+    password: 'Byaidata@2024',
+    database: 'byaidata_database_test',
+    port: 3306,
+    connectTimeout: 10000,
+    waitForConnections: true,
+    acquireTimeout: 10000,     
+    queueLimit: 0               
 }) 
 let query = function( sql, values ) { 
     return new Promise(( resolve, reject ) => { 

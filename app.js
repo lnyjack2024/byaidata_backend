@@ -32,7 +32,7 @@ var server = http.createServer(app);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(cors())
+app.use(cors({ origin: 'http://47.116.221.126' }))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -60,4 +60,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-server.listen('3003')
+server.listen('3004')
