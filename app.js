@@ -2,14 +2,16 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-11-04 16:27:50
+ * @LastEditTime: 2024-11-18 14:41:01
  */
 var createError = require('http-errors');
 var express = require('express');
+const moment = require('moment')
 var cors = require('cors')
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const { query } = require('./util/dbconfig');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -38,6 +40,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+//中间件函数 记录POST请求操作数据
+app.use( async (req, res, next) => {
+  const { method, url, body } = req;
+  const time = moment().format('YYYY-MM-DD HH:mm:ss');
+  const user = req.body.username
+  if(method === 'POST'){
+    await query( `insert into logs (url,date,user,create_time) VALUES('${url}','${JSON.stringify(body)}','${user}','${time}')` ) 
+  }
+  next();
+})
 
 //设置路由前缀
 app.use('/', indexRouter);

@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-11-04 10:45:29
+ * @LastEditTime: 2024-11-18 13:20:40
  */
 var express = require('express');
 var router = express.Router();
@@ -39,18 +39,5 @@ router.post('/login',async (req, res) => {
     })
   }
 });
-
-//测试handsontale
-// router.get('/test', function(req, res) {
-//   const sql = 'select * from handsontale_data'
-//   db(sql,(result)=>{
-//     // res.send(JSON.stringify(result))
-//     res.send(result)
-//   });
-// });
-
-// router.post('/test/update', parser, function(req, res) {
-//   const length = req.body.length
-// });
 
 module.exports = router;
