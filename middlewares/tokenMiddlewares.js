@@ -2,10 +2,11 @@
  * @Description: token校验
  * @Author: wangyonghong
  * @Date: 2024-10-08 17:42:59
- * @LastEditTime: 2024-11-04 10:31:35
+ * @LastEditTime: 2024-11-18 13:24:50
  */
 const jwt = require('jsonwebtoken')
 const { secret } = require('../config/config')
+
 module.exports = (req, res, next) => {
     //获取token
     let token = req.get('token')
