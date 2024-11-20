@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-11-12 11:09:11
+ * @LastEditTime: 2024-11-20 10:39:45
  */
 const express = require('express');
 const moment = require('moment')
@@ -29,12 +29,12 @@ router.get('/department', checkTokenMiddleware, async (req, res) => {
       status:1,
       msg:'请求成功...',
       data:dataList
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -48,12 +48,12 @@ router.post('/department/add', checkTokenMiddleware, async(req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -66,12 +66,12 @@ router.post('/department/delete', checkTokenMiddleware,async (req, res) => {
       res.json({
         status:1,
         msg:'请求成功...',
-        })
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
 });
 
@@ -96,12 +96,12 @@ router.get('/roster/search', checkTokenMiddleware, async (req, res) => {
         status:1,
         msg:'请求成功...',
         data:dataList
-        })
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
 });
 
@@ -125,12 +125,12 @@ router.get('/dimission/search', checkTokenMiddleware, async (req, res) => {
         status:1,
         msg:'请求成功...',
         data:dataList
-        })
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
 });
 
@@ -155,12 +155,12 @@ router.get('/black/search', checkTokenMiddleware, async (req, res) => {
         status:1,
         msg:'请求成功...',
         data:dataList
-        })
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
 });
 
@@ -196,12 +196,12 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -225,12 +225,12 @@ router.post('/roster/edit', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -294,7 +294,7 @@ router.post('/roster/upload', checkTokenMiddleware, (req, res) => {
         res.json({
           status:3,
           msg:'服务端处理异常',
-         })
+        })
       }
     });
     rs.on('data',(chunk)=>{
@@ -336,12 +336,12 @@ router.post('/roster/upload', checkTokenMiddleware, (req, res) => {
         res.json({
           status:1,
           msg:'请求成功...',
-          })
+        })
       }else{
         res.json({
           status:0,
           msg:'请求失败...',
-          })
+        })
       }
   })
   });
@@ -368,12 +368,12 @@ router.get('/portrait/search', checkTokenMiddleware, async (req, res) => {
       status:1,
       msg:'请求成功...',
       data:dataList
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -393,12 +393,12 @@ router.post('/portrait/add', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -418,12 +418,12 @@ router.post('/portrait/edit', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -544,12 +544,12 @@ router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
       status:1,
       msg:'请求成功...',
       data:dataList
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -579,15 +579,15 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
                VALUES ${val}`
   let dataList = await query( sql ) 
   if(dataList){
-    res.json({
-    status:1,
-    msg:'请求成功...',
-  })
+      res.json({
+        status:1,
+        msg:'请求成功...',
+    })
   }else{
     res.json({
-    status:0,
-    msg:'请求失败...',
-  })
+      status:0,
+      msg:'请求失败...',
+    })
   }
 });
 
@@ -600,7 +600,7 @@ router.post('/clocking/edit', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
@@ -618,13 +618,106 @@ router.post('/clocking/delete', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
     })
   }
+});
+
+//培训师列表-查询
+router.get('/trainer/search', checkTokenMiddleware, async (req, res) => {
+  const keysArray = Object.keys(req.query)
+  const entriesArray = Object.entries(req.query)
+  let sql
+  if(keysArray.length > 0){
+    let conditions = ''
+    conditions = entriesArray.map((e)=>{
+      return `${e[0]}='${e[1]}'`
+    }).join(' AND ')
+    sql = `select * from trainer WHERE ${conditions}` 
+  }else{
+    sql = `select * from trainer ORDER BY id DESC`
+  }
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      data:dataList
+    })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
+});
+
+//培训师列表-新增
+router.post('/trainer/add', checkTokenMiddleware, async (req, res) => {
+  const { base,service_line,item,start_time } = req.body
+  const time = moment().format('YYYY-MM-DD HH:mm:ss')
+  const user = req.user.name
+  const sql = `insert into trainer(base,service_line,item,user,start_time,create_time)
+               VALUES('${base}','${service_line}','${item}','${user}','${start_time}','${time}')`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+    })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
+});
+
+//培训师列表-文档导入
+router.post('/trainer/upload', checkTokenMiddleware, (req, res) => {
+  let id = req.query.id
+  let type = req.query.type
+  //创建form对象
+  const form = formidable({
+    multiples:true,
+    //保存上传的excel文件
+    uploadDir:__dirname + '/../public/excel',
+    keepExtensions:true
+  });
+  form.parse(req, async (err, fields, files) => {
+    if(err){
+      res.json({
+        status:3,
+        msg:'服务端处理异常',
+       })
+      return;
+    }
+    let fileUrl = '/excel/' + files.file[0].newFilename
+    let sql = ''
+    if(type === '1'){
+      sql = `UPDATE trainer SET document_url='${fileUrl}' where id='${id}'`
+    }else if(type === '2'){
+      sql = `UPDATE trainer SET answer_url='${fileUrl}' where id='${id}'`
+    }else{
+      sql = `UPDATE trainer SET check_url='${fileUrl}' where id='${id}'`
+    }
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+      })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+      })
+    }
+  });
 });
 
 module.exports = router;
