@@ -15,7 +15,7 @@ const pool = mysql.createPool({
     connectTimeout: 10000,      // 连接超时时间
     waitForConnections: true,   // 连接等待
     acquireTimeout: 10000,      // 获取连接的超时时间
-    queueLimit: 0               // 排队等待连接的数量（0 表示不限制）
+    queueLimit: 0               // 排队等待连接的数量（0 表示不限制)
 }) 
 let query = function( sql, values ) { 
     return new Promise(( resolve, reject ) => { 
