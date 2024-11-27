@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-22 09:56:41
- * @LastEditTime: 2024-11-18 13:20:54
+ * @LastEditTime: 2024-11-27 10:27:08
  */
 const express = require('express');
 const moment = require('moment')
@@ -21,10 +21,10 @@ router.get('/item/search', checkTokenMiddleware, async (req, res) => {
       conditions = entriesArray.map((e)=>{
         return `${e[0]} LIKE '%${e[1]}%'`
       }).join(' AND ')
-      sql = `select * from items WHERE ${conditions}` 
+      sql = `select * from items WHERE ${conditions} and is_delete = 0` 
   
     }else{
-      sql = `select * from items`
+      sql = `select * from items where is_delete = 0`
     }
     let dataList = await query( sql ) 
     const groupedData = buildTree(dataList);
@@ -33,82 +33,98 @@ router.get('/item/search', checkTokenMiddleware, async (req, res) => {
         status:1,
         msg:'请求成功...',
         data:groupedData
-        })
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
 });
-  
-//项目管理-项目列表-新增
-router.post('/item/add', checkTokenMiddleware, async (req, res) => {
-    const { parent_id,name,service_line,base,project_leader,settlement_type,day,
-            start_date,delivery_date,delay_date,price,number_people,
-            team,auditor,settlement_day,overtime_type,detail } = req.body
-    const time = moment().format('YYYY-MM-DD HH:mm:ss')
-  
-    const sql = `insert into items(parent_id,name,service_line,base,item_leader,settlement_type,day,
-                 status,start_date,delivery_date,delivery_status,delay_date,price,number_workers,
-                 work_team,auditor,settlement_day,settlement_status,overtime_type,detail,create_time)
-                 VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${project_leader}','${settlement_type}',
-                 '${day}','未完成','${start_date}','${delivery_date}','未完成','${delay_date}','${price}',
-                 '${number_people}','${team}','${auditor}','${settlement_day}','未开始','${overtime_type}','${detail}','${time}')`
+
+//项目管理-项目列表-查询
+router.get('/item/search_', checkTokenMiddleware, async (req, res) => {
+    const { name } = req.query
+    let sql = `select id,name,service_line from items where is_delete = 0 and service_line = '${name}'`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
         status:1,
         msg:'请求成功...',
-        })
+        data:dataList
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
+    }
+});
+  
+//项目管理-项目列表-新增
+router.post('/item/add', checkTokenMiddleware, async (req, res) => {
+    const { parent_id,name,service_line,base,item_leader,settlement_type,day,
+            start_date,delivery_date,price,number_workers,
+            work_team,auditor,settlement_day,overtime_type,detail } = req.body
+    const time = moment().format('YYYY-MM-DD HH:mm:ss')
+    const user = req.user.name
+    const sql = `insert into items(parent_id,name,service_line,base,item_leader,settlement_type,day,
+                 status,start_date,delivery_date,delivery_status,price,number_workers,
+                 work_team,auditor,settlement_day,settlement_status,overtime_type,detail,is_delete,user,create_time)
+                 VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${item_leader}','${settlement_type}',
+                 '${day}','未完成','${start_date}','${delivery_date}','未完成','${price}',
+                 '${number_workers}','${work_team}','${auditor}','${settlement_day}','未开始','${overtime_type}','${detail}',0,'${user}','${time}')`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+      })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+      })
     }
 });
   
 //项目管理-项目列表-编辑
 router.post('/item/edit', checkTokenMiddleware, async (req, res) => {
-    const { edit_id,service_line,item,sex,age,specialty,education,certificate,language_competence,
-            ability,work_experience,model_experience,likes,characters } = req.body
-            
+    const { edit_id, work_team, number_workers, auditor, delay_date, detail } = req.body
+    const user = req.user.name
     const sql = `UPDATE items
-                    SET service_line = '${service_line}', item = '${item}', sex = '${sex}',
-                    age = '${age}', specialty = '${specialty}', education = '${education}',certificate = '${certificate}',
-                    language_competence = '${language_competence}', ability = '${ability}', work_experience = '${work_experience}', 
-                    model_experience = '${model_experience}',likes = '${likes}',characters = '${characters}'
+                    SET work_team = '${work_team}', number_workers = '${number_workers}', auditor = '${auditor}',
+                    delay_date = '${delay_date}', detail = '${detail}',user = '${user}'
                     WHERE id = ${edit_id}`
     let dataList = await query( sql ) 
     if(dataList){
         res.json({
         status:1,
         msg:'请求成功...',
-        })
+      })
     }else{
         res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
 });
 
 //项目管理-项目列表-删除
 router.post('/item/delete', checkTokenMiddleware, async (req, res) => {
   const { id } = req.body
-  const sql = `delete from items where id = '${id}'`
+  const sql = `UPDATE items is_delete = 1 where id = '${id}'`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -133,12 +149,12 @@ router.get('/account/search', checkTokenMiddleware, async (req, res) => {
       status:1,
       msg:'请求成功...',
       data:dataList
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -158,12 +174,12 @@ router.post('/account/add', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -176,12 +192,12 @@ router.get('/account/detail', checkTokenMiddleware, async (req, res) => {
       status:1,
       msg:'请求成功...',
       data:dataList
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -233,12 +249,12 @@ router.post('/account/detail_add', checkTokenMiddleware, async (req, res) => {
     res.json({
       status:1,
       msg:'请求成功...',
-      })
+    })
   }else{
     res.json({
       status:0,
       msg:'请求失败...',
-      })
+    })
   }
 });
 
@@ -257,7 +273,7 @@ router.post('/account/detail/upload', checkTokenMiddleware, (req, res) => {
       res.json({
         status:3,
         msg:'服务端处理异常',
-       })
+      })
       return;
     }
     let fileUrl = '/excel/' + files.file[0].newFilename

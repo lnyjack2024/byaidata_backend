@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-11-21 14:27:06
+ * @LastEditTime: 2024-11-27 09:57:35
  */
 const express = require('express');
 const moment = require('moment')
@@ -12,7 +12,7 @@ const { query } = require('../util/dbconfig');
 
 //配置管理-业务线-查询
 router.get('/serviceline/search', checkTokenMiddleware, async(req, res) => {
-    const sql = `select * from service_line`
+    const sql = `select * from service_line where is_delete = '0'`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -32,7 +32,8 @@ router.get('/serviceline/search', checkTokenMiddleware, async(req, res) => {
 router.post('/serviceline/add', checkTokenMiddleware, async(req, res) => {
     const { name } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
-    const sql = `insert into service_line (name,create_time) VALUES('${name}','${time}')`
+    const user = req.user.name
+    const sql = `insert into service_line (name, user, is_delete, create_time) VALUES('${name}','${user}','0','${time}')`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -50,7 +51,231 @@ router.post('/serviceline/add', checkTokenMiddleware, async(req, res) => {
 //配置管理-业务线-删除
 router.post('/serviceline/delete', checkTokenMiddleware, async (req, res) => {
   const { id } = req.body
-  const sql = `delete from service_line where id = '${id}'`
+  const sql = `UPDATE service_line SET is_delete = '1' where id = '${id}'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-基地-查询
+router.get('/base/search', checkTokenMiddleware, async(req, res) => {
+    const sql = `select * from base where is_delete = '0'`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        data:dataList
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-基地-新增
+router.post('/base/add', checkTokenMiddleware, async(req, res) => {
+    const { name } = req.body
+    const time = moment().format('YYYY-MM-DD HH:mm:ss')
+    const user = req.user.name
+    const sql = `insert into base (name, user, is_delete, create_time) VALUES('${name}','${user}','0','${time}')`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-基地-删除
+router.post('/base/delete', checkTokenMiddleware, async (req, res) => {
+  const { id } = req.body
+  const sql = `UPDATE base SET is_delete = '1' where id = '${id}'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-结算类型-查询
+router.get('/settlement_type/search', checkTokenMiddleware, async(req, res) => {
+    const sql = `select * from settlement_type where is_delete = '0'`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        data:dataList
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-结算类型-新增
+router.post('/settlement_type/add', checkTokenMiddleware, async(req, res) => {
+    const { name } = req.body
+    const time = moment().format('YYYY-MM-DD HH:mm:ss')
+    const user = req.user.name
+    const sql = `insert into settlement_type (name, user, is_delete, create_time) VALUES('${name}','${user}','0','${time}')`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-结算类型-删除
+router.post('/settlement_type/delete', checkTokenMiddleware, async (req, res) => {
+  const { id } = req.body
+  const sql = `UPDATE settlement_type SET is_delete = '1' where id = '${id}'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-加班类型-查询
+router.get('/overtime_type/search', checkTokenMiddleware, async(req, res) => {
+    const sql = `select * from overtime_type where is_delete = '0'`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        data:dataList
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-加班类型-新增
+router.post('/overtime_type/add', checkTokenMiddleware, async(req, res) => {
+    const { name } = req.body
+    const time = moment().format('YYYY-MM-DD HH:mm:ss')
+    const user = req.user.name
+    const sql = `insert into overtime_type (name, user, is_delete, create_time) VALUES('${name}','${user}','0','${time}')`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-加班类型-删除
+router.post('/overtime_type/delete', checkTokenMiddleware, async (req, res) => {
+  const { id } = req.body
+  const sql = `UPDATE overtime_type SET is_delete = '1' where id = '${id}'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-交付要求-查询
+router.get('/delivery_requirement/search', checkTokenMiddleware, async(req, res) => {
+    const sql = `select * from delivery_requirement where is_delete = '0'`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        data:dataList
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-交付要求-新增
+router.post('/delivery_requirement/add', checkTokenMiddleware, async(req, res) => {
+    const { name } = req.body
+    const time = moment().format('YYYY-MM-DD HH:mm:ss')
+    const user = req.user.name
+    const sql = `insert into delivery_requirement (name, user, is_delete, create_time) VALUES('${name}','${user}','0','${time}')`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+        })
+    }
+});
+
+//配置管理-交付要求-删除
+router.post('/delivery_requirement/delete', checkTokenMiddleware, async (req, res) => {
+  const { id } = req.body
+  const sql = `UPDATE delivery_requirement SET is_delete = '1' where id = '${id}'`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
