@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-11-20 10:39:45
+ * @LastEditTime: 2024-12-02 13:49:14
  */
 const express = require('express');
 const moment = require('moment')
@@ -19,9 +19,9 @@ router.get('/department', checkTokenMiddleware, async (req, res) => {
   const { name } = req.query
   let sql
   if( name ){
-     sql = `select * from department where name='${name}'`
+     sql = `select * from department where name like '%${name}%' and is_delete = 0`
   }else{
-     sql = `select * from department`
+     sql = `select * from department where is_delete = 0`
   }
   let dataList = await query( sql ) 
   if(dataList){
@@ -42,7 +42,7 @@ router.get('/department', checkTokenMiddleware, async (req, res) => {
 router.post('/department/add', checkTokenMiddleware, async(req, res) => {
   const { name } = req.body
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
-  const sql = `insert into department (name,create_time) VALUES('${name}','${time}')`
+  const sql = `insert into department (name,is_delete,create_time) VALUES('${name}',0,'${time}')`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -60,7 +60,7 @@ router.post('/department/add', checkTokenMiddleware, async(req, res) => {
 //部门列表-删除
 router.post('/department/delete', checkTokenMiddleware,async (req, res) => {
     const { id } = req.body
-    const sql = `delete from department where id = '${id}'`
+    const sql = `UPDATE department SET is_delete = 1 where id = '${id}'`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -85,10 +85,9 @@ router.get('/roster/search', checkTokenMiddleware, async (req, res) => {
       conditions = entriesArray.map((e)=>{
         return `${e[0]} LIKE '%${e[1]}%'`
       }).join(' AND ')
-      sql = `select * from roster WHERE ${conditions} AND is_delete = '0'` 
-
+      sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
     }else{
-      sql = `select * from roster WHERE is_delete = '0'`
+      sql = `select * from roster WHERE is_delete = 0`
     }
     let dataList = await query( sql ) 
     if(dataList){
@@ -115,9 +114,9 @@ router.get('/dimission/search', checkTokenMiddleware, async (req, res) => {
       conditions = entriesArray.map((e)=>{
         return `${e[0]} LIKE '%${e[1]}%'`
       }).join(' AND ')
-      sql = `select * from roster WHERE ${conditions} AND is_dimission='是'` 
+      sql = `select * from roster WHERE ${conditions} AND is_dimission = '是'` 
     }else{
-      sql = `select * from roster WHERE is_dimission='是'`
+      sql = `select * from roster WHERE is_dimission = '是'`
     }
     let dataList = await query( sql ) 
     if(dataList){
@@ -144,10 +143,10 @@ router.get('/black/search', checkTokenMiddleware, async (req, res) => {
       conditions = entriesArray.map((e)=>{
         return `${e[0]} LIKE '%${e[1]}%'`
       }).join(' AND ')
-      sql = `select * from roster WHERE ${conditions} AND dimission_type='5' or dimission_type='6'` 
+      sql = `select * from roster WHERE ${conditions} AND dimission_type = '5' or dimission_type = '6'` 
 
     }else{
-      sql = `select * from roster WHERE dimission_type='5' or dimission_type='6'`
+      sql = `select * from roster WHERE dimission_type = '5' or dimission_type = '6'`
     }
     let dataList = await query( sql ) 
     if(dataList){
@@ -167,30 +166,41 @@ router.get('/black/search', checkTokenMiddleware, async (req, res) => {
 //人员花名册-新增
 router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
   const { name,sex,department,base,role,immediate_superior,entry_date,become_date,
-          contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
+          contract_type,recruitment_type,service_line_item,position_level,is_payment,is_employer,
           is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
           marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
           emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
           is_full_time,school,specialty,graduation_time,education,certificate,
           language_competence,ability,is_two_entry,work_experience,recruitment_channel } = req.body
+          let aaa = service_line_item.split('-')
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
+  let service_line
+  let item
+  if(recruitment_type === '2'){
+    service_line = ''
+    item = ''
+  }else{
+    service_line = aaa[0]
+    item = aaa[1]
+  }
   const sql = `insert into roster(name,sex,department,base,role,immediate_superior,entry_date,become_date,
-               contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
+               contract_type,service_line,item,position_level,is_payment,is_employer,
                is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
                marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
                emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
                is_full_time,school,specialty,graduation_time,education,certificate,
-               language_competence,ability,is_two_entry,work_experience,recruitment_channel,is_dimission,is_delete,
+               language_competence,ability,is_two_entry,work_experience,recruitment_channel,recruitment_type,is_dimission,is_delete,
                create_time)
               VALUES('${name}','${sex}','${department}','${base}','${role}','${immediate_superior}',
-              '${entry_date}','${become_date}','${contract_type}','${service_line}','${item}','${item_type}',
+              '${entry_date}','${become_date}','${contract_type}','${service_line}','${item}',
               '${position_level}','${is_payment}','${is_employer}','${is_social_security}','${birthday}',
               '${age}','${id_card}','${id_card_time}','${politics_status}','${family_name}','${marital_status}',
               '${number}','${email}','${domicile}','${urrent_address}','${emergency_contact}','${emergency_contact_relation}',
               '${emergency_contact_number}','${bank_card}','${bank_card_detail}','${is_graduation}','${is_overseas_student}',
               '${is_full_time}','${school}','${specialty}','${graduation_time}','${education}','${certificate}',
-              '${language_competence}','${ability}','${is_two_entry}','${work_experience}','${recruitment_channel}','否','0',
-              '${time}')`
+              '${language_competence}','${ability}','${is_two_entry}','${work_experience}','${recruitment_channel}','${recruitment_type}',
+              '否',0,'${time}')`
+
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -207,19 +217,14 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
 
 //人员花名册-编辑
 router.post('/roster/edit', checkTokenMiddleware, async (req, res) => {
-  const { edit_id,base,role,immediate_superior,service_line,item,item_type,
-          dimission_date,dimission_type,dimission_reason } = req.body
+  const { edit_id,dimission_date,dimission_type,dimission_reason } = req.body
   const time = moment(dimission_date).format('YYYY-MM-DD')
   let is_dimission
   if(dimission_type !== ''){
     is_dimission = '是'
   }
-
-  const sql = `UPDATE roster
-               SET base = '${base}', role = '${role}', immediate_superior = '${immediate_superior}',
-               service_line = '${service_line}', item = '${item}', item_type = '${item_type}',
-               dimission_date = '${time}', dimission_type = '${dimission_type}',is_dimission = '${is_dimission}',
-               dimission_reason = '${dimission_reason}' WHERE id = ${edit_id}`
+  const sql = `UPDATE roster SET dimission_date = '${time}', dimission_type = '${dimission_type ? dimission_type : ''}',
+               is_dimission = '${is_dimission}',dimission_reason = '${dimission_reason ? dimission_reason : ''}' WHERE id = ${edit_id}`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -237,7 +242,6 @@ router.post('/roster/edit', checkTokenMiddleware, async (req, res) => {
 //人员花名册-删除
 router.post('/roster/delete', checkTokenMiddleware,async (req, res) => {
   const { id } = req.body
-  // const sql = `delete from roster where id = '${id}'`
   const sql = `UPDATE roster SET is_delete = '1' WHERE id = ${id}`
   let dataList = await query( sql ) 
   if(dataList){
@@ -357,10 +361,10 @@ router.get('/portrait/search', checkTokenMiddleware, async (req, res) => {
     conditions = entriesArray.map((e)=>{
       return `${e[0]} LIKE '%${e[1]}%'`
     }).join(' AND ')
-    sql = `select * from portrait WHERE ${conditions}` 
+    sql = `select * from portrait WHERE ${conditions} and is_delete = 0` 
 
   }else{
-    sql = `select * from portrait`
+    sql = `select * from portrait where is_delete = 0`
   }
   let dataList = await query( sql ) 
   if(dataList){
@@ -380,14 +384,16 @@ router.get('/portrait/search', checkTokenMiddleware, async (req, res) => {
 //人员画像-新增
 router.post('/portrait/add', checkTokenMiddleware, async (req, res) => {
   const { service_line,item,sex,age,specialty,education,certificate,language_competence,
-          ability,work_experience,model_experience,likes,characters } = req.body
+          ability,work_experience,model_experience,likes,characters,business_leader,personnel,number,inter_time } = req.body
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
-
+  const user = req.user.name
   const sql = `insert into portrait(service_line,item,sex,age,specialty,education,certificate,
-               language_competence,ability,work_experience,model_experience,likes,characters,create_time)
+               language_competence,ability,work_experience,model_experience,likes,characters,
+               business_leader,user,personnel,number,inter_time,is_delete,create_time)
                VALUES('${service_line}','${item}','${sex}','${age}','${specialty}',
                '${education}','${certificate}','${language_competence}','${ability}','${work_experience}',
-               '${model_experience}','${likes}','${characters}','${time}')`
+               '${model_experience}','${likes}','${characters}','${business_leader}','${user}',
+               '${personnel}','${number}','${inter_time}',0,'${time}')`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -413,6 +419,24 @@ router.post('/portrait/edit', checkTokenMiddleware, async (req, res) => {
                language_competence = '${language_competence}', ability = '${ability}', work_experience = '${work_experience}', 
                model_experience = '${model_experience}',likes = '${likes}',characters = '${characters}'
                WHERE id = ${edit_id}`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+    })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
+});
+
+//部门列表-删除
+router.post('/portrait/delete', checkTokenMiddleware,async (req, res) => {
+  const { id } = req.body
+  const sql = `UPDATE portrait SET is_delete = 1 where id = '${id}'`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -532,7 +556,7 @@ router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
   if(keysArray.length > 0){
     let conditions = ''
     conditions = entriesArray.map((e)=>{
-      return `${e[0]}='${e[1]}'`
+      return `${e[0]} LIKE '%${e[1]}%'`
     }).join(' AND ')
     sql = `select * from clocking_in_datas WHERE ${conditions}` 
   }else{
@@ -635,11 +659,11 @@ router.get('/trainer/search', checkTokenMiddleware, async (req, res) => {
   if(keysArray.length > 0){
     let conditions = ''
     conditions = entriesArray.map((e)=>{
-      return `${e[0]}='${e[1]}'`
+      return `${e[0]} LIKE '%${e[1]}%'`
     }).join(' AND ')
-    sql = `select * from trainer WHERE ${conditions}` 
+    sql = `select * from trainer WHERE ${conditions} and is_delete = 0` 
   }else{
-    sql = `select * from trainer ORDER BY id DESC`
+    sql = `select * from trainer WHERE is_delete = 0 ORDER BY id DESC`
   }
   let dataList = await query( sql ) 
   if(dataList){
@@ -661,8 +685,8 @@ router.post('/trainer/add', checkTokenMiddleware, async (req, res) => {
   const { base,service_line,item,start_time } = req.body
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
   const user = req.user.name
-  const sql = `insert into trainer(base,service_line,item,user,start_time,create_time)
-               VALUES('${base}','${service_line}','${item}','${user}','${start_time}','${time}')`
+  const sql = `insert into trainer(base,service_line,item,user,start_time,is_delete,create_time)
+               VALUES('${base}','${service_line}','${item}','${user}','${start_time}',0,'${time}')`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -718,6 +742,24 @@ router.post('/trainer/upload', checkTokenMiddleware, (req, res) => {
       })
     }
   });
+});
+
+//培训师列表-删除
+router.post('/trainer/delete', checkTokenMiddleware,async (req, res) => {
+  const { id } = req.body
+  const sql = `UPDATE trainer SET is_delete = 1 WHERE id = ${id}`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
 });
 
 module.exports = router;
