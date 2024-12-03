@@ -2,7 +2,7 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-11-21 11:57:17
+ * @LastEditTime: 2024-12-03 13:06:56
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -40,11 +40,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//操作日志
-app.use(logs)
-
 //设置路由前缀
 app.use('/', indexRouter);
+//操作日志
+app.use(logs)
 app.use('/user', usersRouter);
 app.use('/role', rolesRouter);
 app.use('/person', personsRouter);
@@ -64,4 +63,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-server.listen('3003')
+server.listen('3004')

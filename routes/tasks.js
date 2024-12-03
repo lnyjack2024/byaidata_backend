@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2024-11-04 16:52:38
+ * @LastEditTime: 2024-11-27 15:43:24
  */
 const express = require('express');
 const moment = require('moment')
@@ -44,24 +44,43 @@ router.get('/task/search', checkTokenMiddleware, async (req, res) => {
     }
 });
 
+//任务包列表-查询
+router.get('/task/search_', checkTokenMiddleware, async (req, res) => {
+    const { item_name } = req.query
+    let sql = `select id,name from tasks where item = '${item_name}'`
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        data:dataList
+      })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+      })
+    }
+});
+
 //任务包管理-任务包列表-新增
 router.post('/task/add', checkTokenMiddleware, async (req, res) => {
     const { name,service_line,base,item,amount,day,item_leader,business_leader,
-            item_manager,item_supervisor,group_manager,trainer,work_team,workers,
+            item_manager,item_supervisor,group_manager,trainer,work_team,workers,auditor,
             delivery_requirement,settlement_type,business_price,price,attendance_type,
             start_date,end_date,delivery_date,salary_structure,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
   
-    const sql = `insert into tasks(name,service_line,base,item,amount,day,item_leader,business_leader,
-                 item_manager,item_supervisor,group_manager,trainer,work_team,workers,
+    const sql = `insert into tasks(name,service_line,base,item,status,is_delivery,amount,day,item_leader,business_leader,
+                 item_manager,item_supervisor,group_manager,trainer,work_team,workers,auditor,
                  delivery_requirement,settlement_type,business_price,price,attendance_type,
                  start_date,end_date,delivery_date,salary_structure,detail,create_time)
-                 VALUES('${name}','${service_line}','${base}','${item}','${amount}','${day}',
+                 VALUES('${name}','${service_line}','${base}','${item}','未完成','否','${amount}','${day}',
                  '${item_leader}','${business_leader}','${item_manager}','${item_supervisor}',
-                 '${group_manager}','${trainer}','${work_team}','${workers}','${delivery_requirement}',
+                 '${group_manager}','${trainer}','${work_team}','${workers}','${auditor}','${delivery_requirement}',
                  '${settlement_type}','${business_price}','${price}','${attendance_type}','${start_date}',
-                 '${end_date}','${delivery_date}','${salary_structure}',
-                 '${detail}','${time}')`
+                 '${end_date}','${delivery_date}','${salary_structure}','${detail}','${time}')`
+
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -88,8 +107,7 @@ router.post('/task/upload', checkTokenMiddleware, (req, res) => {
 
     let task_id = req.query.task_id
     let time = moment().format('YYYY-MM-DD HH:mm:ss')
-    // let user = req.user.account
-    let user = '王永红'
+    const user = req.user.name
 
     form.parse(req, (err, fields, files) => {
       if(err){
@@ -188,9 +206,9 @@ router.get('/task/effect_detail', checkTokenMiddleware, async (req, res) => {
 
 //任务包管理-任务包列表-编辑
 router.post('/task/edit', checkTokenMiddleware, async (req, res) => {
-    const { edit_id,workers,detail,get_task_date,delay_date} = req.body
+    const { edit_id,is_delivery,workers,detail,get_task_date,delay_date} = req.body
     const sql = `UPDATE tasks
-                 SET workers = '${workers}', get_task_date = '${get_task_date}', delay_date = '${delay_date}',
+                 SET is_delivery = '${is_delivery}', workers = '${workers}', get_task_date = '${get_task_date}', delay_date = '${delay_date}',
                  detail = '${detail}' WHERE id = ${edit_id}`
     let dataList = await query( sql ) 
     if(dataList){
@@ -206,10 +224,10 @@ router.post('/task/edit', checkTokenMiddleware, async (req, res) => {
     }
 });
 
-//任务包管理-任务包列表-删除
+//任务包管理-任务包列表-暂停
 router.post('/task/delete', checkTokenMiddleware,async (req, res) => {
     const { id } = req.body
-    const sql = `delete from tasks where id = '${id}'`
+    const sql = `UPDATE tasks SET status = '已暂停' where id = '${id}'`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -233,9 +251,9 @@ router.get('/task/detail', checkTokenMiddleware, async (req, res) => {
     let dataList = await query( sql_ ) 
     let dataCheckList = await query( sql_check ) 
     let data = await query( sql ) 
-
-    let recently_push_date = dataList[0].create_time
-    let frist_push_date = dataList[dataList.length - 1].create_time
+    
+    let recently_push_date = dataList.length > 0 ? dataList[0]?.create_time : ''
+    let frist_push_date = dataList.length > 0 ? dataList[dataList.length - 1]?.create_time : ''
     let quality_rejected_number = 0
     let acceptance_rejected_number = 0
 
