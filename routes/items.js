@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-22 09:56:41
- * @LastEditTime: 2024-11-27 10:27:08
+ * @LastEditTime: 2024-12-13 14:40:38
  */
 const express = require('express');
 const moment = require('moment')
@@ -212,22 +212,24 @@ router.post('/account/detail_add', checkTokenMiddleware, async (req, res) => {
   let _account_period_0 = moment(account_period[0]).format('YYYY-MM-DD')
   let _account_period_1 = moment(account_period[1]).format('YYYY-MM-DD')
   let _account_period   = _account_period_0 + ' 至 ' + _account_period_1
+  let key   = _account_period_0 + '-' + _account_period_1
+  const bigNumber = Number(key.replace(/-/g, ""));
   const user = req.user.name
 
   let sql 
   if(item_settlement_type === '计件'){
       sql = `insert into account_detail(account_id,reconciler,account_day,account_period,tasks,
-              settlement_scale,amount,price,sum,is_accept,create_time)
+              settlement_scale,amount,price,sum,is_accept,settlement_status,refund_status,refund_status_id,create_time)
               VALUES('${account_id}','${user}','${_account_day}','${_account_period}','${tasks}',
-              '${settlement_scale}','${amount}','${price}','${sum}','${is_accept}','${time}')`
+              '${settlement_scale}','${amount}','${price}','${sum}','${is_accept}','未开始','未回款','${bigNumber}','${time}')`
   }else{
       sql = `insert into account_detail(account_id,reconciler,account_day,account_period,tasks,
              settlement_scale,normal_hour,normal_overtime_hour,week_overtime_hour,holidays_overtime_hour,
-             times_overtime_hour15,times_overtime_hour2,times_overtime_hour3,price,sum,is_accept,create_time)
+             times_overtime_hour15,times_overtime_hour2,times_overtime_hour3,price,sum,is_accept,settlement_status,refund_status,refund_status_id,create_time)
              VALUES('${account_id}','${user}','${_account_day}','${_account_period}','${tasks}',
              '${settlement_scale}','${normal_hour}','${normal_overtime_hour}','${week_overtime_hour}',
              '${holidays_overtime_hour}','${times_overtime_hour15}','${times_overtime_hour2}','${times_overtime_hour3}',
-             '${price}','${sum}','${is_accept}','${time}')`
+             '${price}','${sum}','${is_accept}','未开始','未回款','${bigNumber}','${time}')`
   }
 
   //settle结算数据
@@ -235,14 +237,14 @@ router.post('/account/detail_add', checkTokenMiddleware, async (req, res) => {
                     settlement_type,settlement_scale,settlement_status,reconciler,reconciler_number,account_day,
                     account_period,tasks,amount,normal_hour,normal_overtime_hour,week_overtime_hour,holidays_overtime_hour,
                     times_overtime_hour15,times_overtime_hour2,times_overtime_hour3,price,sum,is_accept,
-                    refund_status,invoice_status,create_time) 
+                    refund_status,refund_status_id,invoice_status,create_time) 
                     VALUES('${item_id}','${item_name}','${service_line}','${base}','${item_leader}',
                     '${item_settlement_day}','${item_settlement_type}','${settlement_scale}','${item_settlement_status}',
                     '${user}','','${_account_day}','${_account_period}','${tasks}','${amount ? amount : 0}','${normal_hour ? normal_hour : ''}',
                     '${normal_overtime_hour ? normal_overtime_hour : ''}','${week_overtime_hour ? week_overtime_hour : ''}',
                     '${holidays_overtime_hour ? holidays_overtime_hour : ''}','${times_overtime_hour15 ? times_overtime_hour15 : ''}',
                     '${times_overtime_hour2 ? times_overtime_hour2 : ''}','${times_overtime_hour3 ? times_overtime_hour3 : ''}',
-                    '${price}','${sum}','${is_accept}','未回款','未开票','${time}')`
+                    '${price}','${sum}','${is_accept}','未回款','${bigNumber}','未开票','${time}')`
   let dataList = await query( sql ) 
   let dataSettleList = await query( settle_sql ) 
   if(dataList && dataSettleList){
