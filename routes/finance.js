@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2024-11-06 15:48:49
+ * @LastEditTime: 2024-12-13 14:37:42
  */
 const express = require('express');
 const moment = require('moment')
@@ -47,6 +47,13 @@ router.post('/settle/edit', checkTokenMiddleware, async (req, res) => {
   const user = req.user.name
   const sql = `UPDATE settle SET settlement_status = '${edit_val}', settlement_user = '${user}' where id = '${edit_id}'`
   let dataList = await query( sql ) 
+
+  //修改对账列表的结算状态
+  const sql_ = `select refund_status_id from settle where id = '${edit_id}'`
+  let result = await query( sql_ ) 
+  let refund_status_id = result[0].refund_status_id
+  await query( `UPDATE account_detail SET settlement_status = '${edit_val}' where refund_status_id = '${refund_status_id}'` ) 
+  
   if(dataList){
     res.json({
       status:1,
@@ -65,6 +72,13 @@ router.post('/settle/status', checkTokenMiddleware, async (req, res) => {
   const { edit_id, refund_date, refund_status } = req.body
   const sql = `UPDATE settle SET refund_status = '${refund_status}', refund_date = '${refund_date}' where id = '${edit_id}'`
   let dataList = await query( sql ) 
+
+  //修改对账列表的回款状态
+  const sql_ = `select refund_status_id from settle where id = '${edit_id}'`
+  let result = await query( sql_ ) 
+  let refund_status_id = result[0].refund_status_id
+  await query( `UPDATE account_detail SET refund_status = '${refund_status}' where refund_status_id = '${refund_status_id}'` ) 
+  
   if(dataList){
     res.json({
       status:1,
