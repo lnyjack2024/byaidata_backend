@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-12-02 13:49:14
+ * @LastEditTime: 2024-12-19 13:13:13
  */
 const express = require('express');
 const moment = require('moment')
@@ -172,7 +172,7 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
           emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
           is_full_time,school,specialty,graduation_time,education,certificate,
           language_competence,ability,is_two_entry,work_experience,recruitment_channel } = req.body
-          let aaa = service_line_item.split('-')
+  let aaa = service_line_item.split('-')
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
   let service_line
   let item
@@ -183,6 +183,7 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
     service_line = aaa[0]
     item = aaa[1]
   }
+
   const sql = `insert into roster(name,sex,department,base,role,immediate_superior,entry_date,become_date,
                contract_type,service_line,item,position_level,is_payment,is_employer,
                is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
@@ -217,14 +218,17 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
 
 //人员花名册-编辑
 router.post('/roster/edit', checkTokenMiddleware, async (req, res) => {
-  const { edit_id,dimission_date,dimission_type,dimission_reason } = req.body
-  const time = moment(dimission_date).format('YYYY-MM-DD')
+  const { edit_id,department,base,role,immediate_superior,position_level,dimission_date,dimission_type,dimission_reason } = req.body
+  const time = dimission_date === '' ? '' : moment(dimission_date).format('YYYY-MM-DD')
   let is_dimission
-  if(dimission_type !== ''){
+  if(dimission_type){
     is_dimission = '是'
+  }else{
+    is_dimission = '否'
   }
-  const sql = `UPDATE roster SET dimission_date = '${time}', dimission_type = '${dimission_type ? dimission_type : ''}',
-               is_dimission = '${is_dimission}',dimission_reason = '${dimission_reason ? dimission_reason : ''}' WHERE id = ${edit_id}`
+  const sql = `UPDATE roster SET department = '${department}',base = '${base}',role = '${role}',immediate_superior = '${immediate_superior}',position_level = '${position_level}',
+               dimission_date = '${time}', dimission_type = '${dimission_type ? dimission_type : ''}',
+               is_dimission = '${is_dimission}',dimission_reason = '${ dimission_reason === null ? '' : dimission_reason }' WHERE id = ${edit_id}`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -366,6 +370,7 @@ router.get('/portrait/search', checkTokenMiddleware, async (req, res) => {
   }else{
     sql = `select * from portrait where is_delete = 0`
   }
+
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -596,7 +601,8 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
   const val = arr.map((e)=>{
     return `(${e})` 
   }).join(',')
-  const sql = `insert into clocking_in_datas(name,years,base,department,day_1,day_2,day_3,day_4,
+  const sql = `insert into clocking_in_datas(name,years,base,item,should_attendance,actual_attendance,
+               sick_leave,things_leave,day_1,day_2,day_3,day_4,
                day_5,day_6,day_7,day_8,day_9,day_10,day_11,day_12,day_13,day_14,day_15,day_16,
                day_17,day_18,day_19,day_20,day_21,day_22,day_23,day_24,day_25,day_26,day_27,day_28,
                day_29,day_30,day_31)
