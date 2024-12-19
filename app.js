@@ -33,7 +33,7 @@ var server = http.createServer(app);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(cors({ origin: 'http://47.116.221.126' }))
+app.use(cors({ origin: 'http://www.test.byaidata.com' }))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -63,8 +63,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-<<<<<<< HEAD
 server.listen('3004')
-=======
-server.listen('3004')
->>>>>>> dev
