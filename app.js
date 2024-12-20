@@ -42,7 +42,7 @@ var server = https.createServer( httpsOptions, app );
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(cors({ origin: 'http://www.test.byaidata.com' }))
+app.use(cors({ origin: 'https://www.test.byaidata.com' }))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
