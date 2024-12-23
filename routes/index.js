@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-12-03 13:15:02
+ * @LastEditTime: 2024-12-23 17:54:24
  */
 var express = require('express');
 var router = express.Router();
@@ -10,6 +10,8 @@ const { query } = require('../util/dbconfig');
 const md5 = require('md5');
 const jwt = require('jsonwebtoken')
 const { secret } = require('../config/config')
+const moment = require('moment')
+
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
@@ -18,6 +20,7 @@ router.get('/', function(req, res, next) {
 router.post('/login',async (req, res) => {
   const { username, password } = req.body
   const _sql = `select name from user where account='${username}'`
+  const time = moment().format('YYYY-MM-DD HH:mm:ss');
   let _dataList = await query( _sql ) 
   if( _dataList.length === 0){
     return res.json({
@@ -31,6 +34,9 @@ router.post('/login',async (req, res) => {
                          { expiresIn : 60 * 60 * 24 * 7 })
     const password_md5 = md5(password)
     const sql = `select * from user where account='${username}' and password='${password_md5}'`
+    await query( `insert into logs (url, date, user, create_time) 
+        VALUES('/login','${username}','${name}','${time}')` 
+    ) 
     let dataList = await query( sql ) 
     if(dataList.length > 0){
       return res.json({
