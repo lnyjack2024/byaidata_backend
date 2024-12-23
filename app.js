@@ -2,12 +2,13 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-12-20 11:12:17
+ * @LastEditTime: 2024-12-20 12:00:22
  */
 var createError = require('http-errors');
 var express = require('express');
 var cors = require('cors')
 var path = require('path');
+const fs = require('fs');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var logs = require('./middlewares/logsMiddlewares')
@@ -42,6 +43,7 @@ var server = https.createServer( httpsOptions, app );
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// app.use(cors({ origin: 'http://47.116.221.126' }))
 app.use(cors({ origin: 'https://www.test.byaidata.com' }))
 app.use(logger('dev'));
 app.use(express.json());
