@@ -2,7 +2,7 @@
  * @Description: 数据库配置信息
  * @Author: wangyonghong
  * @Date: 2024-09-02 14:57:18
- * @LastEditTime: 2024-11-20 14:27:36
+ * @LastEditTime: 2024-12-23 13:07:18
  */
 const mysql = require('mysql')
 const pool = mysql.createPool({
@@ -15,7 +15,7 @@ const pool = mysql.createPool({
     connectTimeout: 10000,      // 连接超时时间
     waitForConnections: true,   // 连接等待
     acquireTimeout: 10000,      // 获取连接的超时时间
-    queueLimit: 0               // 排队等待连接的数量（0 表示不限制)
+    queueLimit: 0               // 排队等待连接的数量（0 表示不限制）
 }) 
 let query = function( sql, values ) { 
     return new Promise(( resolve, reject ) => { 
