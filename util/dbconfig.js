@@ -7,14 +7,10 @@
 const mysql = require('mysql')
 const pool = mysql.createPool({
     connectionLimit: 50,
-    // host: 'rm-uf6a7ab0tn1139ug9.mysql.rds.aliyuncs.com',//外网地址 ecs连接内网地址、设置白名单
-    // user: 'test_root',
-    // password: 'Byaidata@2024',
-    // database: 'byaidata_database_test',
-    host: 'rm-uf68irq87i3de22q1.mysql.rds.aliyuncs.com',//外网地址 ecs连接内网地址、设置白名单
-    user: 'pro_root',
-    password: 'ByaidataPro@2024',
-    database: 'byaidata_database_pro',
+    host: 'rm-uf6a7ab0tn1139ug9.mysql.rds.aliyuncs.com',//外网地址 ecs连接内网地址、设置白名单
+    user: 'test_root',
+    password: 'Byaidata@2024',
+    database: 'byaidata_database_test',
     port: 3306,
     connectTimeout: 10000,      // 连接超时时间
     waitForConnections: true,   // 连接等待
