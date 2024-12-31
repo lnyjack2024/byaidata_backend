@@ -7,7 +7,7 @@
 const mysql = require('mysql')
 const pool = mysql.createPool({
     connectionLimit: 50,
-    host: 'rm-uf6a7ab0tn1139ug9no.mysql.rds.aliyuncs.com',//外网地址 ecs连接内网地址、设置白名单
+    host: 'rm-uf6a7ab0tn1139ug9.mysql.rds.aliyuncs.com',//外网地址 ecs连接内网地址、设置白名单
     user: 'test_root',
     password: 'Byaidata@2024',
     database: 'byaidata_database_test',
