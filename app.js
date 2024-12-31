@@ -2,12 +2,13 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-12-03 13:22:46
+ * @LastEditTime: 2024-12-31 10:24:11
  */
 var createError = require('http-errors');
 var express = require('express');
 var cors = require('cors')
 var path = require('path');
+var fs = require('fs');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var logs = require('./middlewares/logsMiddlewares')
@@ -27,8 +28,15 @@ var tasksRouter = require('./routes/tasks');
 var financeRouter = require('./routes/finance');
 
 var app = express();
-var http = require('http');
-var server = http.createServer(app);
+
+// 读取证书文件
+const httpsOptions = {
+  key: fs.readFileSync('/etc/letsencrypt/live/www.test.byaidata.com/privkey.pem'), // 私钥文件路径
+  cert: fs.readFileSync('/etc/letsencrypt/live/www.test.byaidata.com/fullchain.pem'), // 完整证书链路径
+};
+
+var https = require('https');
+var server = https.createServer( httpsOptions, app );
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
