@@ -2,7 +2,7 @@
  * @Description: 数据库配置信息
  * @Author: wangyonghong
  * @Date: 2024-09-02 14:57:18
- * @LastEditTime: 2024-12-31 10:30:41
+ * @LastEditTime: 2024-12-31 10:33:35
  */
 const mysql = require('mysql')
 const pool = mysql.createPool({
