@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2024-11-27 15:43:24
+ * @LastEditTime: 2024-12-30 16:23:26
  */
 const express = require('express');
 const moment = require('moment')
@@ -65,19 +65,19 @@ router.get('/task/search_', checkTokenMiddleware, async (req, res) => {
 
 //任务包管理-任务包列表-新增
 router.post('/task/add', checkTokenMiddleware, async (req, res) => {
-    const { name,service_line,base,item,amount,day,item_leader,business_leader,
-            item_manager,item_supervisor,group_manager,trainer,work_team,workers,auditor,
+    const { name,item,amount,day,business_leader,
+            item_manager,item_supervisor,group_manager,trainer,work_team,workers,
             delivery_requirement,settlement_type,business_price,price,attendance_type,
             start_date,end_date,delivery_date,salary_structure,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
   
-    const sql = `insert into tasks(name,service_line,base,item,status,is_delivery,amount,day,item_leader,business_leader,
-                 item_manager,item_supervisor,group_manager,trainer,work_team,workers,auditor,
+    const sql = `insert into tasks(name,item,status,is_delivery,amount,day,business_leader,
+                 item_manager,item_supervisor,group_manager,trainer,work_team,workers,
                  delivery_requirement,settlement_type,business_price,price,attendance_type,
                  start_date,end_date,delivery_date,salary_structure,detail,create_time)
-                 VALUES('${name}','${service_line}','${base}','${item}','未完成','否','${amount}','${day}',
-                 '${item_leader}','${business_leader}','${item_manager}','${item_supervisor}',
-                 '${group_manager}','${trainer}','${work_team}','${workers}','${auditor}','${delivery_requirement}',
+                 VALUES('${name}','${item}','未完成','否','${amount}','${day}',
+                 '${business_leader}','${item_manager}','${item_supervisor}',
+                 '${group_manager}','${trainer}','${work_team}','${workers}','${delivery_requirement}',
                  '${settlement_type}','${business_price}','${price}','${attendance_type}','${start_date}',
                  '${end_date}','${delivery_date}','${salary_structure}','${detail}','${time}')`
 
