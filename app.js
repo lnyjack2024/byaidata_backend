@@ -2,7 +2,7 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-12-31 10:24:11
+ * @LastEditTime: 2024-12-31 10:28:32
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -41,7 +41,7 @@ var server = https.createServer( httpsOptions, app );
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(cors())
+app.use(cors({ origin: 'https://www.test.byaidata.com' }))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
