@@ -2,13 +2,13 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-12-20 12:00:22
+ * @LastEditTime: 2024-12-31 10:29:52
  */
 var createError = require('http-errors');
 var express = require('express');
 var cors = require('cors')
 var path = require('path');
-const fs = require('fs');
+var fs = require('fs');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var logs = require('./middlewares/logsMiddlewares')
@@ -31,20 +31,18 @@ var app = express();
 
 // 读取证书文件
 const httpsOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/www.test.byaidata.com/privkey.pem'), // 私钥文件路径
-  cert: fs.readFileSync('/etc/letsencrypt/live/www.test.byaidata.com/fullchain.pem'), // 完整证书链路径
+  key: fs.readFileSync('/etc/letsencrypt/live/www.byaidata.com/privkey.pem'), // 私钥文件路径
+  cert: fs.readFileSync('/etc/letsencrypt/live/www.byaidata.com/fullchain.pem'), // 完整证书链路径
 };
 
-// var http = require('http');
-// var server = http.createServer(app);
 var https = require('https');
 var server = https.createServer( httpsOptions, app );
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// app.use(cors({ origin: 'http://47.116.221.126' }))
-app.use(cors({ origin: 'https://www.test.byaidata.com' }))
+app.use(cors({ origin: 'https://www.byaidata.com' }))
+// app.use(cors({ origin: 'https://www.pro.byaidata.com' }))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
