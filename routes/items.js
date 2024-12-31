@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-22 09:56:41
- * @LastEditTime: 2024-12-13 14:40:38
+ * @LastEditTime: 2024-12-30 16:17:25
  */
 const express = require('express');
 const moment = require('moment')
@@ -22,7 +22,6 @@ router.get('/item/search', checkTokenMiddleware, async (req, res) => {
         return `${e[0]} LIKE '%${e[1]}%'`
       }).join(' AND ')
       sql = `select * from items WHERE ${conditions} and is_delete = 0` 
-  
     }else{
       sql = `select * from items where is_delete = 0`
     }
@@ -44,8 +43,8 @@ router.get('/item/search', checkTokenMiddleware, async (req, res) => {
 
 //项目管理-项目列表-查询
 router.get('/item/search_', checkTokenMiddleware, async (req, res) => {
-    const { name } = req.query
-    let sql = `select id,name,service_line from items where is_delete = 0 and service_line = '${name}'`
+    // const { name } = req.query
+    let sql = `select id,name,service_line from items where is_delete = 0`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -65,15 +64,15 @@ router.get('/item/search_', checkTokenMiddleware, async (req, res) => {
 router.post('/item/add', checkTokenMiddleware, async (req, res) => {
     const { parent_id,name,service_line,base,item_leader,settlement_type,day,
             start_date,delivery_date,price,number_workers,
-            work_team,auditor,settlement_day,overtime_type,detail } = req.body
+            work_team,amount,settlement_day,overtime_type,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
     const user = req.user.name
     const sql = `insert into items(parent_id,name,service_line,base,item_leader,settlement_type,day,
                  status,start_date,delivery_date,delivery_status,price,number_workers,
-                 work_team,auditor,settlement_day,settlement_status,overtime_type,detail,is_delete,user,create_time)
+                 work_team,amount,settlement_day,settlement_status,overtime_type,detail,is_delete,user,create_time)
                  VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${item_leader}','${settlement_type}',
                  '${day}','未完成','${start_date}','${delivery_date}','未完成','${price}',
-                 '${number_workers}','${work_team}','${auditor}','${settlement_day}','未开始','${overtime_type}','${detail}',0,'${user}','${time}')`
+                 '${number_workers}','${work_team}','${amount}','${settlement_day}','未开始','${overtime_type}','${detail}',0,'${user}','${time}')`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -90,12 +89,12 @@ router.post('/item/add', checkTokenMiddleware, async (req, res) => {
   
 //项目管理-项目列表-编辑
 router.post('/item/edit', checkTokenMiddleware, async (req, res) => {
-    const { edit_id, work_team, number_workers, auditor, delay_date, detail } = req.body
+    const { edit_id, work_team, number_workers, delay_date, detail } = req.body
     const user = req.user.name
-    const sql = `UPDATE items
-                    SET work_team = '${work_team}', number_workers = '${number_workers}', auditor = '${auditor}',
+    const sql = ` UPDATE items
+                    SET work_team = '${work_team}', number_workers = '${number_workers}', 
                     delay_date = '${delay_date}', detail = '${detail}',user = '${user}'
-                    WHERE id = ${edit_id}`
+                  WHERE id = ${edit_id}`
     let dataList = await query( sql ) 
     if(dataList){
         res.json({
