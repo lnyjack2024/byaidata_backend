@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-12-23 17:54:24
+ * @LastEditTime: 2025-01-02 14:28:45
  */
 var express = require('express');
 var router = express.Router();
@@ -19,7 +19,7 @@ router.get('/', function(req, res, next) {
 //登录
 router.post('/login',async (req, res) => {
   const { username, password } = req.body
-  const _sql = `select name from user where account='${username}'`
+  const _sql = `select name,role,base,service_line from user where account='${username}' and is_delete = 0`
   const time = moment().format('YYYY-MM-DD HH:mm:ss');
   let _dataList = await query( _sql ) 
   if( _dataList.length === 0){
@@ -29,7 +29,10 @@ router.post('/login',async (req, res) => {
     })
   }else if( _dataList.length > 0 ){
     let name = _dataList[0]?.name
-    let token = jwt.sign({ account : username, name : name }, 
+    let role = _dataList[0]?.role
+    let base = _dataList[0]?.base
+    let service_line = _dataList[0]?.service_line
+    let token = jwt.sign({ account : username, name : name, role : role, base : base, service_line : service_line  }, 
                            secret, 
                          { expiresIn : 60 * 60 * 24 * 7 })
     const password_md5 = md5(password)

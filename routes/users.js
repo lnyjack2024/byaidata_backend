@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-11-25 14:51:33
+ * @LastEditTime: 2025-01-02 11:22:34
  */
 const express = require('express');
 const moment = require('moment')
@@ -35,13 +35,13 @@ router.get('/search', checkTokenMiddleware, async(req, res) => {
 });
 
 router.post('/add', checkTokenMiddleware, async(req, res) => {
-    const { account, name, password, role, department, base } = req.body
+    const { account, name, password, role, department, base, service_line } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
     const password_md5 = md5(password)
-    let s = role.split('-')
-    const sql = `insert into user (account, password, name, department, 
-                 base, role, role_id, create_time, update_time, is_delete)
-                 VALUES('${account}','${password_md5}','${name}','${department}','${base}','${s[0]}','${s[1]}','${time}','${time}',0)`
+    const roleData = role.map(item => item.split('-')[0]).join(',');
+    const s = role[0].split('-')
+    const sql = `insert into user(account, password, name, department, base, service_line, role, role_id, create_time, update_time, is_delete)
+                 VALUES('${account}','${password_md5}','${name}','${department}','${base}','${service_line}','${roleData}','${s[1]}','${time}','${time}',0)`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
