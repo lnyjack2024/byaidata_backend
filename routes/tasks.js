@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2024-12-30 16:23:26
+ * @LastEditTime: 2025-01-03 17:17:12
  */
 const express = require('express');
 const moment = require('moment')
@@ -16,19 +16,55 @@ const { query } = require('../util/dbconfig');
 
 //任务包管理-任务包列表-查询
 router.get('/task/search', checkTokenMiddleware, async (req, res) => {
-    const keysArray = Object.keys(req.query)
-    const entriesArray = Object.entries(req.query)
-    let sql
-    if(keysArray.length > 0){
-      let conditions = ''
-      conditions = entriesArray.map((e)=>{
-        return `${e[0]} LIKE '%${e[1]}%'`
-      }).join(' AND ')
-      sql = `select * from tasks WHERE ${conditions}` 
+    // const keysArray = Object.keys(req.query)
+    // const entriesArray = Object.entries(req.query)
+    // let sql
+    // if(keysArray.length > 0){
+    //   let conditions = ''
+    //   conditions = entriesArray.map((e)=>{
+    //     return `${e[0]} LIKE '%${e[1]}%'`
+    //   }).join(' AND ')
+    //   sql = `select * from tasks WHERE ${conditions}` 
   
-    }else{
-      sql = `select * from tasks`
-    }
+    // }else{
+    //   sql = `select * from tasks`
+    // }
+     //根据不同的字段、sql拼接OR或者AND
+     const keysArray = Object.keys(req.query); // 获取请求中的查询参数的键
+     const entriesArray = Object.entries(req.query); // 获取请求中的键值对
+     let sql;
+     if (keysArray.length > 0) {
+       // 定义字段与逻辑的对应规则
+       const logicRules = {
+         base: 'OR', 
+         service_line: 'OR', 
+       };
+       let orConditions = []; // 存储需要用 OR 连接的条件
+       let andConditions = []; // 存储需要用 AND 连接的条件
+       // 遍历 entriesArray，根据字段规则分组
+       entriesArray.forEach(([key, value]) => {
+         const operator = logicRules[key] || 'AND'; // 如果字段未定义规则，默认使用 AND
+         const condition = `${key} LIKE '%${value}%'`;
+         if (operator === 'OR') {
+           orConditions.push(condition); // 添加到 OR 条件组
+         } else {
+           andConditions.push(condition); // 添加到 AND 条件组
+         }
+       });
+       // 拼接 OR 和 AND 条件
+       let conditions = '';
+       if (orConditions.length > 0) {
+         conditions += `(${orConditions.join(' OR ')})`; // 用括号包裹 OR 条件
+       }
+       if (andConditions.length > 0) {
+         conditions += `${conditions ? ' AND ' : ''}${andConditions.join(' AND ')}`; // 添加 AND 条件
+       }
+       // 拼接最终 SQL
+       sql = `SELECT * FROM tasks WHERE ${conditions}`;
+     } else {
+       // 如果没有查询条件，返回默认查询
+       sql = `SELECT * FROM tasks`;
+     }
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -65,21 +101,19 @@ router.get('/task/search_', checkTokenMiddleware, async (req, res) => {
 
 //任务包管理-任务包列表-新增
 router.post('/task/add', checkTokenMiddleware, async (req, res) => {
-    const { name,item,amount,day,business_leader,
-            item_manager,item_supervisor,group_manager,trainer,work_team,workers,
-            delivery_requirement,settlement_type,business_price,price,attendance_type,
-            start_date,end_date,delivery_date,salary_structure,detail } = req.body
+    const { name,item,service_line,base,amount,day,business_leader,
+            item_manager,group_manager,work_team,workers,delivery_requirement,settlement_type,
+            business_price,price,attendance_type,start_date,end_date,delivery_date,salary_structure,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
-  
-    const sql = `insert into tasks(name,item,status,is_delivery,amount,day,business_leader,
-                 item_manager,item_supervisor,group_manager,trainer,work_team,workers,
-                 delivery_requirement,settlement_type,business_price,price,attendance_type,
-                 start_date,end_date,delivery_date,salary_structure,detail,create_time)
-                 VALUES('${name}','${item}','未完成','否','${amount}','${day}',
-                 '${business_leader}','${item_manager}','${item_supervisor}',
-                 '${group_manager}','${trainer}','${work_team}','${workers}','${delivery_requirement}',
+    const user = req.user.name
+
+    const sql = `insert into tasks(name,item,service_line,base,status,is_delivery,amount,day,business_leader,
+                 item_manager,group_manager,work_team,workers,delivery_requirement,settlement_type,business_price,price,attendance_type,
+                 start_date,end_date,delivery_date,salary_structure,detail,user,create_time)
+                 VALUES('${name}','${item}','${service_line}','${base}','未完成','否','${amount}','${day}',
+                 '${business_leader}','${item_manager}','${group_manager}','${work_team}','${workers}','${delivery_requirement}',
                  '${settlement_type}','${business_price}','${price}','${attendance_type}','${start_date}',
-                 '${end_date}','${delivery_date}','${salary_structure}','${detail}','${time}')`
+                 '${end_date}','${delivery_date}','${salary_structure}','${detail}','${user}','${time}')`
 
     let dataList = await query( sql ) 
     if(dataList){

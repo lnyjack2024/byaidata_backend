@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-11-27 09:57:35
+ * @LastEditTime: 2025-01-03 17:22:32
  */
 const express = require('express');
 const moment = require('moment')
@@ -12,7 +12,20 @@ const { query } = require('../util/dbconfig');
 
 //配置管理-业务线-查询
 router.get('/serviceline/search', checkTokenMiddleware, async(req, res) => {
-    const sql = `select * from service_line where is_delete = '0'`
+    const { role, service_line } = req.user
+    let sql = ''
+    //基地业务负责人,业务负责人
+    if(role === '基地业务负责人,业务负责人'){
+      sql = `select * from service_line where name = '${service_line}' and is_delete = '0'`
+    //基地业务负责人
+    }else if(role === '基地业务负责人'){
+      sql = `select * from service_line where 1=2`
+    //业务负责人  
+    }else if(role === '业务负责人'){
+      sql = `select * from service_line where name = '${service_line}' and is_delete = '0'`
+    }else{
+      sql = `select * from service_line where is_delete = '0'`
+    }
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -68,7 +81,20 @@ router.post('/serviceline/delete', checkTokenMiddleware, async (req, res) => {
 
 //配置管理-基地-查询
 router.get('/base/search', checkTokenMiddleware, async(req, res) => {
-    const sql = `select * from base where is_delete = '0'`
+    const { role, base } = req.user
+    let sql = ''
+    //基地业务负责人,业务负责人
+    if(role === '基地业务负责人,业务负责人'){
+       sql = `select * from base where name = '${base}' and is_delete = '0'`
+    //基地业务负责人
+    }else if(role === '基地业务负责人'){
+      sql = `select * from base where name = '${base}' and is_delete = '0'`
+    //业务负责人
+    }else if(role === '业务负责人'){
+      sql = `select * from base where 1=2`
+    }else{
+       sql = `select * from base where is_delete = '0'`
+    }
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
