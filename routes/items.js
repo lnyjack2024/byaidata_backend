@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-22 09:56:41
- * @LastEditTime: 2024-12-30 16:17:25
+ * @LastEditTime: 2025-01-03 16:41:06
  */
 const express = require('express');
 const moment = require('moment')
@@ -13,18 +13,55 @@ const { query } = require('../util/dbconfig');
 
 //项目管理-项目列表-查询
 router.get('/item/search', checkTokenMiddleware, async (req, res) => {
-    const keysArray = Object.keys(req.query)
-    const entriesArray = Object.entries(req.query)
-    let sql
-    if(keysArray.length > 0){
-      let conditions = ''
-      conditions = entriesArray.map((e)=>{
-        return `${e[0]} LIKE '%${e[1]}%'`
-      }).join(' AND ')
-      sql = `select * from items WHERE ${conditions} and is_delete = 0` 
-    }else{
-      sql = `select * from items where is_delete = 0`
+    // const keysArray = Object.keys(req.query)
+    // const entriesArray = Object.entries(req.query)
+    // let sql
+    // if(keysArray.length > 0){
+    //   let conditions = ''
+    //   conditions = entriesArray.map((e)=>{
+    //     return `${e[0]} LIKE '%${e[1]}%'`
+    //   }).join(' OR ')
+    //   sql = `select * from items WHERE ${conditions} and is_delete = 0` 
+    // }else{
+    //   sql = `select * from items where is_delete = 0`
+    // }
+    //根据不同的字段、sql拼接OR或者AND
+    const keysArray = Object.keys(req.query); // 获取请求中的查询参数的键
+    const entriesArray = Object.entries(req.query); // 获取请求中的键值对
+    let sql;
+    if (keysArray.length > 0) {
+      // 定义字段与逻辑的对应规则
+      const logicRules = {
+        base: 'OR', 
+        service_line: 'OR', 
+      };
+      let orConditions = []; // 存储需要用 OR 连接的条件
+      let andConditions = []; // 存储需要用 AND 连接的条件
+      // 遍历 entriesArray，根据字段规则分组
+      entriesArray.forEach(([key, value]) => {
+        const operator = logicRules[key] || 'AND'; // 如果字段未定义规则，默认使用 AND
+        const condition = `${key} LIKE '%${value}%'`;
+        if (operator === 'OR') {
+          orConditions.push(condition); // 添加到 OR 条件组
+        } else {
+          andConditions.push(condition); // 添加到 AND 条件组
+        }
+      });
+      // 拼接 OR 和 AND 条件
+      let conditions = '';
+      if (orConditions.length > 0) {
+        conditions += `(${orConditions.join(' OR ')})`; // 用括号包裹 OR 条件
+      }
+      if (andConditions.length > 0) {
+        conditions += `${conditions ? ' AND ' : ''}${andConditions.join(' AND ')}`; // 添加 AND 条件
+      }
+      // 拼接最终 SQL
+      sql = `SELECT * FROM items WHERE ${conditions} AND is_delete = 0`;
+    } else {
+      // 如果没有查询条件，返回默认查询
+      sql = `SELECT * FROM items WHERE is_delete = 0`;
     }
+
     let dataList = await query( sql ) 
     const groupedData = buildTree(dataList);
     if(dataList){
@@ -43,8 +80,13 @@ router.get('/item/search', checkTokenMiddleware, async (req, res) => {
 
 //项目管理-项目列表-查询
 router.get('/item/search_', checkTokenMiddleware, async (req, res) => {
-    // const { name } = req.query
-    let sql = `select id,name,service_line from items where is_delete = 0`
+    const { service_line, name } = req.query
+    let sql;
+    if(service_line){
+      sql = `select id,name from items where service_line = '${service_line}' and is_delete = 0`
+    }else if(name){
+      sql = `select base,business_leader,item_manager,group_manager from items where name = '${name}' and is_delete = 0`
+    }
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -62,17 +104,19 @@ router.get('/item/search_', checkTokenMiddleware, async (req, res) => {
   
 //项目管理-项目列表-新增
 router.post('/item/add', checkTokenMiddleware, async (req, res) => {
-    const { parent_id,name,service_line,base,item_leader,settlement_type,day,
-            start_date,delivery_date,price,number_workers,
+    const { parent_id,name,service_line,base,business_leader,item_manager,
+            group_manager,settlement_type,day,start_date,delivery_date,price,number_workers,
             work_team,amount,settlement_day,overtime_type,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
     const user = req.user.name
-    const sql = `insert into items(parent_id,name,service_line,base,item_leader,settlement_type,day,
+    const sql = `insert into items(parent_id,name,service_line,base,business_leader,item_manager,group_manager,settlement_type,day,
                  status,start_date,delivery_date,delivery_status,price,number_workers,
                  work_team,amount,settlement_day,settlement_status,overtime_type,detail,is_delete,user,create_time)
-                 VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${item_leader}','${settlement_type}',
+                 VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${business_leader}','${item_manager}','${group_manager}','${settlement_type}',
                  '${day}','未完成','${start_date}','${delivery_date}','未完成','${price}',
                  '${number_workers}','${work_team}','${amount}','${settlement_day}','未开始','${overtime_type}','${detail}',0,'${user}','${time}')`
+    // console.log(111,req.body)
+    // console.log(222,sql)
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -112,7 +156,7 @@ router.post('/item/edit', checkTokenMiddleware, async (req, res) => {
 //项目管理-项目列表-删除
 router.post('/item/delete', checkTokenMiddleware, async (req, res) => {
   const { id } = req.body
-  const sql = `UPDATE items is_delete = 1 where id = '${id}'`
+  const sql = `UPDATE items SET is_delete = 1 where id = '${id}'`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
