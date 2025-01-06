@@ -2,11 +2,11 @@
  * @Description: 数据库配置信息
  * @Author: wangyonghong
  * @Date: 2024-09-02 14:57:18
- * @LastEditTime: 2024-11-14 15:37:52
+ * @LastEditTime: 2025-01-03 18:48:24
  */
 const mysql = require('mysql')
 const pool = mysql.createPool({
-//   connectionLimit: 50,
+    connectionLimit: 50,
     host: 'localhost',
     user: 'root',
     password: 'wyhmysql',
