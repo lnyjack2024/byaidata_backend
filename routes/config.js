@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-01-06 13:09:53
+ * @LastEditTime: 2025-01-07 14:23:14
  */
 const express = require('express');
 const moment = require('moment')
@@ -381,5 +381,174 @@ router.get('/logs/log', checkTokenMiddleware, async(req, res) => {
       })
   }
 });
+
+//配置管理-项目经理列表-查询
+router.get('/item_manager/search', checkTokenMiddleware, async(req, res) => {
+  const sql = `select * from item_manager where is_delete = '0'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      data:dataList
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-项目经理列表-新增
+router.post('/item_manager/add', checkTokenMiddleware, async(req, res) => {
+  const { name, base } = req.body
+  const time = moment().format('YYYY-MM-DD HH:mm:ss')
+  const user = req.user.name
+  const sql = `insert into item_manager (name, base, user, is_delete, create_time) VALUES('${name}','${base}','${user}','0','${time}')`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-项目经理列表-删除
+router.post('/item_manager/delete', checkTokenMiddleware, async (req, res) => {
+const { id } = req.body
+const sql = `UPDATE item_manager SET is_delete = '1' where id = '${id}'`
+let dataList = await query( sql ) 
+if(dataList){
+  res.json({
+    status:1,
+    msg:'请求成功...',
+    })
+}else{
+  res.json({
+    status:0,
+    msg:'请求失败...',
+    })
+}
+});
+
+//配置管理-组长列表-查询
+router.get('/group_manager/search', checkTokenMiddleware, async(req, res) => {
+  const sql = `select * from group_manager where is_delete = '0'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      data:dataList
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-组长列表-新增
+router.post('/group_manager/add', checkTokenMiddleware, async(req, res) => {
+  const { name, base } = req.body
+  const time = moment().format('YYYY-MM-DD HH:mm:ss')
+  const user = req.user.name
+  const sql = `insert into group_manager (name, base, user, is_delete, create_time) VALUES('${name}','${base}','${user}','0','${time}')`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-组长列表-删除
+router.post('/group_manager/delete', checkTokenMiddleware, async (req, res) => {
+const { id } = req.body
+const sql = `UPDATE group_manager SET is_delete = '1' where id = '${id}'`
+let dataList = await query( sql ) 
+if(dataList){
+  res.json({
+    status:1,
+    msg:'请求成功...',
+    })
+}else{
+  res.json({
+    status:0,
+    msg:'请求失败...',
+    })
+}
+});
+
+//配置管理-培训师列表-查询
+router.get('/trainers/search', checkTokenMiddleware, async(req, res) => {
+  const sql = `select * from trainers where is_delete = '0'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      data:dataList
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-培训师列表-新增
+router.post('/trainers/add', checkTokenMiddleware, async(req, res) => {
+  const { name, base } = req.body
+  const time = moment().format('YYYY-MM-DD HH:mm:ss')
+  const user = req.user.name
+  const sql = `insert into trainers (name, base, user, is_delete, create_time) VALUES('${name}','${base}','${user}','0','${time}')`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+      })
+  }
+});
+
+//配置管理-培训师列表-删除
+router.post('/trainers/delete', checkTokenMiddleware, async (req, res) => {
+const { id } = req.body
+const sql = `UPDATE trainers SET is_delete = '1' where id = '${id}'`
+let dataList = await query( sql ) 
+if(dataList){
+  res.json({
+    status:1,
+    msg:'请求成功...',
+    })
+}else{
+  res.json({
+    status:0,
+    msg:'请求失败...',
+    })
+}
+});
+
 
 module.exports = router;
