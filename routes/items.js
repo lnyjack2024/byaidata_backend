@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-22 09:56:41
- * @LastEditTime: 2025-01-03 16:41:06
+ * @LastEditTime: 2025-01-07 16:37:42
  */
 const express = require('express');
 const moment = require('moment')
@@ -105,18 +105,18 @@ router.get('/item/search_', checkTokenMiddleware, async (req, res) => {
 //项目管理-项目列表-新增
 router.post('/item/add', checkTokenMiddleware, async (req, res) => {
     const { parent_id,name,service_line,base,business_leader,item_manager,
-            group_manager,settlement_type,day,start_date,delivery_date,price,number_workers,
+            group_manager,trainer,settlement_type,day,start_date,delivery_date,price,number_workers,
             work_team,amount,settlement_day,overtime_type,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
     const user = req.user.name
-    const sql = `insert into items(parent_id,name,service_line,base,business_leader,item_manager,group_manager,settlement_type,day,
+    const sql = `insert into items(parent_id,name,service_line,base,business_leader,item_manager,group_manager,trainer,settlement_type,day,
                  status,start_date,delivery_date,delivery_status,price,number_workers,
                  work_team,amount,settlement_day,settlement_status,overtime_type,detail,is_delete,user,create_time)
-                 VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${business_leader}','${item_manager}','${group_manager}','${settlement_type}',
+                 VALUES('${parent_id ? parent_id : ''}','${name}','${service_line}','${base}','${business_leader}','${item_manager}',
+                 '${group_manager}','${trainer}','${settlement_type}',
                  '${day}','未完成','${start_date}','${delivery_date}','未完成','${price}',
                  '${number_workers}','${work_team}','${amount}','${settlement_day}','未开始','${overtime_type}','${detail}',0,'${user}','${time}')`
-    // console.log(111,req.body)
-    // console.log(222,sql)
+    
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
