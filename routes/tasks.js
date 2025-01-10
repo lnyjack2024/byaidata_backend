@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2025-01-10 13:51:32
+ * @LastEditTime: 2025-01-10 14:30:35
  */
 const express = require('express');
 const moment = require('moment')
@@ -23,8 +23,8 @@ const { query } = require('../util/dbconfig');
 //配置阿里云OSS客户端
 // const client = new OSS({
 //   region: 'oss-cn-shanghai', 
-//   accessKeyId:'LTAI5t8vEBFWmekAdiMcWPCb',
-//   accessKeySecret:'W6DJKQLKuJqXxUEQN1vWdXng70UVVn',
+//   accessKeyId:'',
+//   accessKeySecret:'',
 //   bucket: 'byaidata-oss', 
 // });
 
