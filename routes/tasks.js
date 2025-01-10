@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2025-01-10 14:31:43
+ * @LastEditTime: 2025-01-10 15:38:10
  */
 const express = require('express');
 const moment = require('moment')
@@ -22,7 +22,6 @@ const { query } = require('../util/dbconfig');
 
 //配置阿里云OSS客户端
 // const client = new OSS({
-
 // });
 
 //任务包管理-任务包列表-查询

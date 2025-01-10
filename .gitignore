@@ -23,4 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # 忽略任务包人效数据目录
-/public/excel/
+# /public/excel/
