@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2025-01-03 17:17:12
+ * @LastEditTime: 2025-01-10 14:31:43
  */
 const express = require('express');
 const moment = require('moment')
@@ -13,6 +13,17 @@ const XLSX = require('xlsx');
 const { formidable } = require('formidable');
 const checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
 const { query } = require('../util/dbconfig');
+// const client = require('../util/oss_detail')
+// const multer = require("multer");
+// const OSS = require("ali-oss");
+
+//配置Multer用于文件上传
+// const upload = multer({ dest: "uploads/" });
+
+//配置阿里云OSS客户端
+// const client = new OSS({
+
+// });
 
 //任务包管理-任务包列表-查询
 router.get('/task/search', checkTokenMiddleware, async (req, res) => {
@@ -130,19 +141,41 @@ router.post('/task/add', checkTokenMiddleware, async (req, res) => {
 });
 
 //任务包管理-任务包列表-明细-导入
-router.post('/task/upload', checkTokenMiddleware, (req, res) => {
-    //创建form对象
+router.post('/task/upload', checkTokenMiddleware, async(req, res) => {
+    //文件上传oss
+    // const file = req.file;
+    const user = req.user.name
+    // const now = new Date();
+    // const formattedDate = now.toISOString().slice(0, 10);
+    // const filePath = path.resolve(file.path); //文件路径
+    // const ossFileName = `uploads/${formattedDate}-${user}-${file.originalname}`; //OSS文件路径
+    // try {
+    //   //上传到阿里云OSS
+    //   const result = await client.put(ossFileName, filePath);
+    //   //删除本地临时文件
+    //   fs.unlinkSync(filePath);
+    //   res.json({
+    //     status:1,
+    //     msg:'请求成功...',
+    //     url: result.url,
+    //   });
+    // }catch(error){
+    //   console.log('上传oss失败' + error)
+    //   res.json({
+    //     status:0,
+    //     msg:error,
+    //   })
+    // }
+
+    // 创建form对象
     const form = formidable({
       multiples:true,
       //保存上传的excel文件
-      uploadDir:__dirname + '/../public/excel',
+      uploadDir:__dirname + '/../uploads',
       keepExtensions:true
     });
-
     let task_id = req.query.task_id
     let time = moment().format('YYYY-MM-DD HH:mm:ss')
-    const user = req.user.name
-
     form.parse(req, (err, fields, files) => {
       if(err){
         res.json({
@@ -151,20 +184,18 @@ router.post('/task/upload', checkTokenMiddleware, (req, res) => {
          })
         return;
       }
-      let originalFilename = files.file[0].originalFilename
-      let type = path.extname(originalFilename).slice(1)
-      if(type != 'xlsx'){
-        res.json({
-          status:3,
-          msg:'文件类型错误',
-         })
-         return;
-      }
-  
-      let fileUrl = '../public/excel/' + files.file[0].newFilename
+      // let originalFilename = files.file[0].originalFilename
+      // let type = path.extname(originalFilename).slice(1)
+      // if(type != 'xlsx'){
+      //   res.json({
+      //     status:3,
+      //     msg:'文件类型错误',
+      //    })
+      //    return;
+      // }
+      let fileUrl = '/../uploads/' + files.file[0].newFilename
       //如果是图片、保存url:/excel/' + files.file[0].newFilename
       const filePath = path.join(__dirname, fileUrl);
-  
       //创建读入流
       let rs = fs.createReadStream(filePath)
       let chunks = [];
@@ -206,17 +237,19 @@ router.post('/task/upload', checkTokenMiddleware, (req, res) => {
         let sql = `INSERT INTO tasks_detail(task_id,${val_keys},user,create_time) VALUES ${val}`
         let dataList = await query( sql ) 
         if(dataList){
+          //删除上传的文件
+          fs.unlinkSync(filePath);
           res.json({
             status:1,
             msg:'请求成功...',
-            })
+          });
         }else{
           res.json({
             status:0,
             msg:'请求失败...',
-            })
+          })
         }
-        })
+      })
     });
 });
 
@@ -363,3 +396,8 @@ router.post('/task/check_add', checkTokenMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+
+
