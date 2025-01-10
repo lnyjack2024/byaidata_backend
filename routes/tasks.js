@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2025-01-10 14:30:35
+ * @LastEditTime: 2025-01-10 14:31:43
  */
 const express = require('express');
 const moment = require('moment')
@@ -22,10 +22,7 @@ const { query } = require('../util/dbconfig');
 
 //配置阿里云OSS客户端
 // const client = new OSS({
-//   region: 'oss-cn-shanghai', 
-//   accessKeyId:'',
-//   accessKeySecret:'',
-//   bucket: 'byaidata-oss', 
+
 // });
 
 //任务包管理-任务包列表-查询
@@ -399,3 +396,8 @@ router.post('/task/check_add', checkTokenMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+
+
