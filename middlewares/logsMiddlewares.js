@@ -2,7 +2,7 @@
  * @Description: 日志中间件
  * @Author: wangyonghong
  * @Date: 2024-11-21 10:07:19
- * @LastEditTime: 2024-11-21 13:09:50
+ * @LastEditTime: 2025-01-17 10:10:35
  */
 const { query } = require('../util/dbconfig');
 const moment = require('moment')
@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
         if(err){
             return next(err)
         }
-        user = req.user.name
+        user = req.user?.name
     })
     if(method === 'POST'){
       await query( `insert into logs (url, date, user, create_time) 

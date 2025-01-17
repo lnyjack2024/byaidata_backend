@@ -2,7 +2,7 @@
  * @Description: token校验
  * @Author: wangyonghong
  * @Date: 2024-10-08 17:42:59
- * @LastEditTime: 2024-12-02 18:13:06
+ * @LastEditTime: 2025-01-17 10:19:29
  */
 const jwt = require('jsonwebtoken')
 const { secret } = require('../config/config')
@@ -21,7 +21,7 @@ module.exports = (req, res, next) => {
       if(err){
         return res.json({
           status:0,
-          msg:'token校验失败...',
+          msg:'token失效',
         })
       }
       //保存用户信息
