@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2024-12-19 13:13:13
+ * @LastEditTime: 2025-01-17 18:10:50
  */
 const express = require('express');
 const moment = require('moment')
@@ -19,11 +19,12 @@ router.get('/department', checkTokenMiddleware, async (req, res) => {
   const { name } = req.query
   let sql
   if( name ){
-     sql = `select * from department where name like '%${name}%' and is_delete = 0`
+     sql = `select * from department where name LIKE ? and is_delete = 0`
   }else{
      sql = `select * from department where is_delete = 0`
   }
-  let dataList = await query( sql ) 
+
+  let dataList = await query( sql, `%${name}%`) 
   if(dataList){
     res.json({
       status:1,
@@ -165,41 +166,31 @@ router.get('/black/search', checkTokenMiddleware, async (req, res) => {
 
 //人员花名册-新增
 router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
-  const { name,sex,department,base,role,immediate_superior,entry_date,become_date,
-          contract_type,recruitment_type,service_line_item,position_level,is_payment,is_employer,
+  const { name,sex,department,base,role,workplace,immediate_superior,entry_date,become_date,
+          contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
           is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
           marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
           emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
           is_full_time,school,specialty,graduation_time,education,certificate,
-          language_competence,ability,is_two_entry,work_experience,recruitment_channel } = req.body
-  let aaa = service_line_item.split('-')
+          language_competence,ability } = req.body
+  const formattedDates = id_card_time.map(date => date.split('T')[0]);
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
-  let service_line
-  let item
-  if(recruitment_type === '2'){
-    service_line = ''
-    item = ''
-  }else{
-    service_line = aaa[0]
-    item = aaa[1]
-  }
-
-  const sql = `insert into roster(name,sex,department,base,role,immediate_superior,entry_date,become_date,
-               contract_type,service_line,item,position_level,is_payment,is_employer,
+  const sql = `insert into roster(name,sex,department,base,role,workplace,immediate_superior,entry_date,become_date,
+               contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
                is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
                marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
                emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
                is_full_time,school,specialty,graduation_time,education,certificate,
                language_competence,ability,is_two_entry,work_experience,recruitment_channel,recruitment_type,is_dimission,is_delete,
                create_time)
-              VALUES('${name}','${sex}','${department}','${base}','${role}','${immediate_superior}',
-              '${entry_date}','${become_date}','${contract_type}','${service_line}','${item}',
-              '${position_level}','${is_payment}','${is_employer}','${is_social_security}','${birthday}',
-              '${age}','${id_card}','${id_card_time}','${politics_status}','${family_name}','${marital_status}',
+              VALUES('${name}','${sex}','${department ? department : '' }','${base}','${role}','${workplace}','${immediate_superior}',
+              '${entry_date}','${become_date}','${contract_type}','${service_line ? service_line : ''}','${item ? item : ''}','${item_type ? item_type : ''}',
+              '${position_level ? position_level : ''}','${is_payment}','${is_employer}','${is_social_security}','${birthday}',
+              '${age}','${id_card}','${formattedDates}','${politics_status}','${family_name}','${marital_status}',
               '${number}','${email}','${domicile}','${urrent_address}','${emergency_contact}','${emergency_contact_relation}',
               '${emergency_contact_number}','${bank_card}','${bank_card_detail}','${is_graduation}','${is_overseas_student}',
               '${is_full_time}','${school}','${specialty}','${graduation_time}','${education}','${certificate}',
-              '${language_competence}','${ability}','${is_two_entry}','${work_experience}','${recruitment_channel}','${recruitment_type}',
+              '${language_competence}','${ability}','否','','HR招聘','0',
               '否',0,'${time}')`
 
   let dataList = await query( sql ) 
@@ -218,7 +209,7 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
 
 //人员花名册-编辑
 router.post('/roster/edit', checkTokenMiddleware, async (req, res) => {
-  const { edit_id,department,base,role,immediate_superior,position_level,dimission_date,dimission_type,dimission_reason } = req.body
+  const { edit_id, base, role, workplace,service_line, item, item_type, immediate_superior, position_level, dimission_date, dimission_type, dimission_reason } = req.body
   const time = dimission_date === '' ? '' : moment(dimission_date).format('YYYY-MM-DD')
   let is_dimission
   if(dimission_type){
@@ -226,8 +217,8 @@ router.post('/roster/edit', checkTokenMiddleware, async (req, res) => {
   }else{
     is_dimission = '否'
   }
-  const sql = `UPDATE roster SET department = '${department}',base = '${base}',role = '${role}',immediate_superior = '${immediate_superior}',position_level = '${position_level}',
-               dimission_date = '${time}', dimission_type = '${dimission_type ? dimission_type : ''}',
+  const sql = `UPDATE roster SET base = '${base}',role = '${role}',immediate_superior = '${immediate_superior}',position_level = '${ position_level === null ? '' : position_level }',
+               workplace = '${workplace}',service_line = '${service_line}',item = '${item}',item_type = '${item_type}',dimission_date = '${time}', dimission_type = '${dimission_type ? dimission_type : ''}',
                is_dimission = '${is_dimission}',dimission_reason = '${ dimission_reason === null ? '' : dimission_reason }' WHERE id = ${edit_id}`
   let dataList = await query( sql ) 
   if(dataList){
