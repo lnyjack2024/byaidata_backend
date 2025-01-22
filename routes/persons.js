@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-01-17 18:10:50
+ * @LastEditTime: 2025-01-22 11:23:39
  */
 const express = require('express');
 const moment = require('moment')
@@ -217,8 +217,8 @@ router.post('/roster/edit', checkTokenMiddleware, async (req, res) => {
   }else{
     is_dimission = '否'
   }
-  const sql = `UPDATE roster SET base = '${base}',role = '${role}',immediate_superior = '${immediate_superior}',position_level = '${ position_level === null ? '' : position_level }',
-               workplace = '${workplace}',service_line = '${service_line}',item = '${item}',item_type = '${item_type}',dimission_date = '${time}', dimission_type = '${dimission_type ? dimission_type : ''}',
+  const sql = `UPDATE roster SET base = '${base}',role = '${role}',immediate_superior = '${immediate_superior}',position_level = '${ position_level ? position_level : '' }',
+               workplace = '${workplace}',service_line = '${service_line ? service_line : ''}',item = '${ item ? item : '' }',item_type = '${item_type ? item_type : ''}',dimission_date = '${time}', dimission_type = '${dimission_type ? dimission_type : ''}',
                is_dimission = '${is_dimission}',dimission_reason = '${ dimission_reason === null ? '' : dimission_reason }' WHERE id = ${edit_id}`
   let dataList = await query( sql ) 
   if(dataList){
