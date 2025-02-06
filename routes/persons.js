@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-01-22 11:23:39
+ * @LastEditTime: 2025-02-06 13:21:02
  */
 const express = require('express');
 const moment = require('moment')
@@ -78,18 +78,11 @@ router.post('/department/delete', checkTokenMiddleware,async (req, res) => {
 
 //人员花名册-查询
 router.get('/roster/search', checkTokenMiddleware, async (req, res) => {
-    const keysArray = Object.keys(req.query)
     const entriesArray = Object.entries(req.query)
-    let sql
-    if(keysArray.length > 0){
-      let conditions = ''
-      conditions = entriesArray.map((e)=>{
-        return `${e[0]} LIKE '%${e[1]}%'`
-      }).join(' AND ')
-      sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
-    }else{
-      sql = `select * from roster WHERE is_delete = 0`
-    }
+    let conditions = entriesArray.map((e)=>{
+      return `${e[0]} LIKE '%${e[1]}%'`
+    }).join(' AND ')
+    let sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -103,6 +96,54 @@ router.get('/roster/search', checkTokenMiddleware, async (req, res) => {
         msg:'请求失败...',
       })
     }
+});
+
+//人员花名册-下载
+router.get('/roster/down', checkTokenMiddleware, async (req, res) => {
+      // 1. 创建数据
+      const entriesArray = Object.entries(req.query)
+      let conditions = entriesArray
+      .filter(e => e[1] !== 'undefined')
+      .map(e => `${e[0]} LIKE '%${e[1]}%'`)
+      .join(' AND ');
+      let sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
+      let rowDataPackets = await query( sql ) 
+
+      // 定义 Excel 头部
+      const data = [["姓名","性别","基地","职场","部门","职务信息","业务线","项目名称",
+                     "项目类型","直属上级","入职日期","转正日期","合同类型","职级","是否签约发薪平台",
+                     "是否购买雇主责任","是否缴纳社保","出生年月日","年龄","身份证","身份证有效期",
+                     "政治面貌","籍贯","婚姻状况","手机号码","邮箱","户籍所在地","现居住地","紧急联系人",
+                     "与紧急联系人关系","紧急联系人手机号","银行卡号","银行卡开户行信息","是否毕业",
+                     "是否留学生","是否全日制","毕业院校","所学专业","毕业时间","最高学历","所持证书",
+                     "语言能力","是否离职","创建时间"]];
+      
+      // 遍历数据，转换格式
+      const formattedData = rowDataPackets.map(item => [item.name,item.sex,item.base,item.workplace,
+        item.department,item.role,item.service_line,item.item,item.item_type,item.immediate_superior,item.entry_date,item.become_date,item.contract_type,
+        item.position_level,item.is_payment,item.is_employer,item.is_social_security,item.birthday,item.age,item.id_card,item.id_card_time,item.politics_status,
+        item.family_name,item.marital_status,item.number,item.email,item.domicile,item.urrent_address,item.emergency_contact,item.emergency_contact_relation,item.emergency_contact_number,
+        item.bank_card,item.bank_card_detail,item.is_graduation,item.is_overseas_student,item.is_full_time,item.school,item.specialty,item.graduation_time,item.education,item.certificate,
+        item.language_competence,item.is_dimission,item.create_time]);
+      
+      // 合并头部和数据
+      const finalData = [...data, ...formattedData];
+      
+      // 2. 创建工作簿和工作表
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet(finalData);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "人员花名册数据");
+  
+      // 3. 保存到服务器
+      const filePath = path.join(__dirname, "data.xlsx");
+      XLSX.writeFile(workbook, filePath);
+  
+      // 4. 返回文件给前端
+      res.download(filePath, "人员花名册数据.xlsx", (err) => {
+          if (err) console.error("下载错误", err);
+          // 删除临时文件（可选）
+          fs.unlinkSync(filePath);
+      });
 });
 
 //人员花名册-离职-查询
