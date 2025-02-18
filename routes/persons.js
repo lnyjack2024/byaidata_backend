@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-02-18 11:18:39
+ * @LastEditTime: 2025-02-18 16:05:47
  */
 const express = require('express');
 const moment = require('moment')
@@ -85,8 +85,9 @@ router.get('/roster/search', checkTokenMiddleware, async (req, res) => {
       return `${e[0]} LIKE '%${e[1]}%'`
     })
     .join(' AND ');
+    // let sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
+    let sql = `SELECT * FROM roster WHERE ${conditions ? conditions + ' AND ' : ''}is_delete = 0`; 
 
-    let sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
