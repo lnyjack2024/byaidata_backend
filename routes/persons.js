@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-02-06 13:21:02
+ * @LastEditTime: 2025-02-18 11:18:39
  */
 const express = require('express');
 const moment = require('moment')
@@ -79,9 +79,13 @@ router.post('/department/delete', checkTokenMiddleware,async (req, res) => {
 //人员花名册-查询
 router.get('/roster/search', checkTokenMiddleware, async (req, res) => {
     const entriesArray = Object.entries(req.query)
-    let conditions = entriesArray.map((e)=>{
+    let conditions = entriesArray
+    .filter(e => e[0] !== 'is_dimission' || e[1] !== '全部') 
+    .map((e)=>{
       return `${e[0]} LIKE '%${e[1]}%'`
-    }).join(' AND ')
+    })
+    .join(' AND ');
+
     let sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
     let dataList = await query( sql ) 
     if(dataList){
@@ -208,7 +212,7 @@ router.get('/black/search', checkTokenMiddleware, async (req, res) => {
 //人员花名册-新增
 router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
   const { name,sex,department,base,role,workplace,immediate_superior,entry_date,become_date,
-          contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
+          contract_type,social_insurance_name,social_insurance_date,service_line,item,item_type,position_level,is_payment,is_employer,
           is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
           marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
           emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
@@ -217,7 +221,7 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
   const formattedDates = id_card_time.map(date => date.split('T')[0]);
   const time = moment().format('YYYY-MM-DD HH:mm:ss')
   const sql = `insert into roster(name,sex,department,base,role,workplace,immediate_superior,entry_date,become_date,
-               contract_type,service_line,item,item_type,position_level,is_payment,is_employer,
+               contract_type,social_insurance_name,social_insurance_date,service_line,item,item_type,position_level,is_payment,is_employer,
                is_social_security,birthday,age,id_card,id_card_time,politics_status,family_name,
                marital_status,number,email,domicile,urrent_address,emergency_contact,emergency_contact_relation,
                emergency_contact_number,bank_card,bank_card_detail,is_graduation,is_overseas_student,
@@ -225,7 +229,8 @@ router.post('/roster/add', checkTokenMiddleware, async (req, res) => {
                language_competence,ability,is_two_entry,work_experience,recruitment_channel,recruitment_type,is_dimission,is_delete,
                create_time)
               VALUES('${name}','${sex}','${department ? department : '' }','${base}','${role}','${workplace}','${immediate_superior}',
-              '${entry_date}','${become_date}','${contract_type}','${service_line ? service_line : ''}','${item ? item : ''}','${item_type ? item_type : ''}',
+              '${entry_date}','${become_date}','${contract_type}','${social_insurance_name ? social_insurance_name : ''}',
+              '${social_insurance_date ? social_insurance_date : ''}','${service_line ? service_line : ''}','${item ? item : ''}','${item_type ? item_type : ''}',
               '${position_level ? position_level : ''}','${is_payment}','${is_employer}','${is_social_security}','${birthday}',
               '${age}','${id_card}','${formattedDates}','${politics_status}','${family_name}','${marital_status}',
               '${number}','${email}','${domicile}','${urrent_address}','${emergency_contact}','${emergency_contact_relation}',
