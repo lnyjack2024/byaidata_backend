@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-02-18 16:05:47
+ * @LastEditTime: 2025-02-20 14:13:02
  */
 const express = require('express');
 const moment = require('moment')
@@ -88,6 +88,29 @@ router.get('/roster/search', checkTokenMiddleware, async (req, res) => {
     // let sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
     let sql = `SELECT * FROM roster WHERE ${conditions ? conditions + ' AND ' : ''}is_delete = 0`; 
 
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        data:dataList
+      })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+      })
+    }
+});
+
+//人员花名册-详情-查询
+router.get('/roster/search_', checkTokenMiddleware, async (req, res) => {
+    const entriesArray = Object.entries(req.query)
+    let conditions = entriesArray.map((e)=>{
+      return `${e[0]} = '${e[1]}'`
+    }).join(' AND ');
+
+    let sql = `select * from roster WHERE ${conditions} AND is_delete = 0` 
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
