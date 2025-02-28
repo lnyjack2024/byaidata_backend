@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-01-07 14:23:14
+ * @LastEditTime: 2025-02-26 14:42:48
  */
 const express = require('express');
 const moment = require('moment')
@@ -22,6 +22,15 @@ router.get('/serviceline/search', checkTokenMiddleware, async(req, res) => {
       sql = `select * from service_line where 1=2`
     //业务负责人  
     }else if(role === '业务负责人'){
+      sql = `select * from service_line where name = '${service_line}' and is_delete = '0'`
+    //项目经理
+    }else if(role === '项目经理'){
+      sql = `select * from service_line where name = '${service_line}' and is_delete = '0'`
+    //项目主管
+    }else if(role === '项目主管'){
+      sql = `select * from service_line where name = '${service_line}' and is_delete = '0'`
+    //组长
+    }else if(role === '组长'){
       sql = `select * from service_line where name = '${service_line}' and is_delete = '0'`
     }else{
       sql = `select * from service_line where is_delete = '0'`
@@ -109,6 +118,15 @@ router.get('/base/search', checkTokenMiddleware, async(req, res) => {
     //业务负责人
     }else if(role === '业务负责人'){
       sql = `select * from base where 1=2`
+    //项目经理
+    }else if(role === '项目经理'){
+      sql = `select * from base where name = '${base}' and is_delete = '0'`
+      //项目主管
+    }else if(role === '项目主管'){
+      sql = `select * from base where name = '${base}' and is_delete = '0'`
+      //组长
+    }else if(role === '组长'){
+      sql = `select * from base where name = '${base}' and is_delete = '0'`
     }else{
        sql = `select * from base where is_delete = '0'`
     }
