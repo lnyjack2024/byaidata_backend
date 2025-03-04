@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-01-02 11:22:34
+ * @LastEditTime: 2025-03-04 10:42:28
  */
 const express = require('express');
 const moment = require('moment')
@@ -59,6 +59,28 @@ router.post('/add', checkTokenMiddleware, async(req, res) => {
 router.post('/delete', checkTokenMiddleware, async (req, res) => {
   const { id } = req.body
   const sql = `UPDATE user SET is_delete = 1 where id = '${id}'`
+  let dataList = await query( sql ) 
+  if(dataList){
+    res.json({
+      status:1,
+      msg:'请求成功...',
+      })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
+});
+
+//修改密码
+router.post('/set_password', checkTokenMiddleware, async (req, res) => {
+  const account = req.user.account
+  const { password } = req.body
+  const password_md5 = md5(password)
+  const time = moment().format('YYYY-MM-DD HH:mm:ss')
+
+  const sql = `UPDATE user SET password = '${password_md5}', update_time = '${time}' where account = '${account}'`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
