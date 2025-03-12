@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2025-01-02 14:28:45
+ * @LastEditTime: 2025-03-10 14:50:44
  */
 var express = require('express');
 var router = express.Router();
@@ -34,7 +34,8 @@ router.post('/login',async (req, res) => {
     let service_line = _dataList[0]?.service_line
     let token = jwt.sign({ account : username, name : name, role : role, base : base, service_line : service_line  }, 
                            secret, 
-                         { expiresIn : 60 * 60 * 24 * 7 })
+                         { expiresIn : 60 * 60 * 24 * 7 }
+                         )
     const password_md5 = md5(password)
     const sql = `select * from user where account='${username}' and password='${password_md5}'`
     await query( `insert into logs (url, date, user, create_time) 

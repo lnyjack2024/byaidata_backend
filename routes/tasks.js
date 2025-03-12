@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2025-03-04 10:45:31
+ * @LastEditTime: 2025-03-12 13:56:24
  */
 const express = require('express');
 const moment = require('moment')
@@ -98,16 +98,16 @@ router.get('/task/search_', checkTokenMiddleware, async (req, res) => {
 
 //任务包管理-任务包列表-新增
 router.post('/task/add', checkTokenMiddleware, async (req, res) => {
-    const { name,item,service_line,base,amount,day,business_leader,
+    const { name,item,service_line,base,amount,month,day,hour,business_leader,
             item_manager,group_manager,work_team,workers,delivery_requirement,settlement_type,
             business_price,price,attendance_type,start_date,end_date,delivery_date,salary_structure,detail } = req.body
     const time = moment().format('YYYY-MM-DD HH:mm:ss')
     const user = req.user.name
 
-    const sql = `insert into tasks(name,item,service_line,base,status,is_delivery,amount,day,business_leader,
+    const sql = `insert into tasks(name,item,service_line,base,status,is_delivery,amount,month,day,hour,business_leader,
                  item_manager,group_manager,work_team,workers,delivery_requirement,settlement_type,business_price,price,attendance_type,
                  start_date,end_date,delivery_date,salary_structure,detail,user,create_time)
-                 VALUES('${name}','${item}','${service_line}','${base}','未完成','否','${amount}','${day}',
+                 VALUES('${name}','${item}','${service_line}','${base}','未完成','否','${amount}','${month}','${day}','${hour}',
                  '${business_leader}','${item_manager}','${group_manager}','${work_team}','${workers}','${delivery_requirement}',
                  '${settlement_type}','${business_price}','${price}','${attendance_type}','${start_date}',
                  '${end_date}','${delivery_date}','${salary_structure}','${detail}','${user}','${time}')`
@@ -117,12 +117,12 @@ router.post('/task/add', checkTokenMiddleware, async (req, res) => {
       res.json({
         status:1,
         msg:'请求成功...',
-        })
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
 });
 
@@ -259,10 +259,39 @@ router.get('/task/effect_detail', checkTokenMiddleware, async (req, res) => {
 
 //任务包管理-任务包列表-编辑
 router.post('/task/edit', checkTokenMiddleware, async (req, res) => {
-    const { edit_id,is_delivery,workers,detail,get_task_date,delay_date} = req.body
+    const { edit_id,name,item,service_line,base,amount,month,day,hour,business_leader,
+            item_manager,group_manager,work_team,workers,delivery_requirement,settlement_type,
+            business_price,price,attendance_type,start_date,end_date,delivery_date,salary_structure,
+            is_delivery,detail,get_task_date,delay_date } = req.body
     const sql = `UPDATE tasks
-                 SET is_delivery = '${is_delivery}', workers = '${workers}', get_task_date = '${get_task_date}', delay_date = '${delay_date}',
-                 detail = '${detail}' WHERE id = ${edit_id}`
+                 SET 
+                  name                 = '${name}', 
+                  item                 = '${item}', 
+                  service_line         = '${service_line}', 
+                  base                 = '${base}',
+                  amount               = '${amount}',
+                  month                = '${month}',
+                  day                  = '${day}',
+                  hour                 = '${hour}',
+                  business_leader      = '${business_leader}',
+                  item_manager         = '${item_manager}',
+                  group_manager        = '${group_manager}',
+                  work_team            = '${work_team}',
+                  workers              = '${workers}',
+                  delivery_requirement = '${delivery_requirement}',
+                  settlement_type      = '${settlement_type}',
+                  business_price       = '${business_price}',
+                  price                = '${price}',
+                  attendance_type      = '${attendance_type}',
+                  start_date           = '${start_date}',
+                  end_date             = '${end_date}',
+                  delivery_date        = '${delivery_date}',
+                  salary_structure     = '${salary_structure}',
+                  is_delivery          = '${is_delivery}',
+                  detail               = '${detail}',
+                  get_task_date        = '${get_task_date}',
+                  delay_date           = '${delay_date}'
+                 WHERE id = ${edit_id}`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
