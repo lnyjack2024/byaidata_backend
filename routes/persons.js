@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-02-20 14:13:02
+ * @LastEditTime: 2025-03-20 16:21:06
  */
 const express = require('express');
 const moment = require('moment')
@@ -624,9 +624,7 @@ router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
     conditions = entriesArray.map((e)=>{
       return `${e[0]} LIKE '%${e[1]}%'`
     }).join(' AND ')
-    sql = `select * from clocking_in_datas WHERE ${conditions}` 
-  }else{
-    sql = `select * from clocking_in_datas ORDER BY id DESC`
+    sql = `select * from attendance_records WHERE ${conditions}` 
   }
   let dataList = await query( sql ) 
   if(dataList){
@@ -662,8 +660,8 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
   const val = arr.map((e)=>{
     return `(${e})` 
   }).join(',')
-  const sql = `insert into clocking_in_datas(name,years,base,item,should_attendance,actual_attendance,
-               sick_leave,things_leave,day_1,day_2,day_3,day_4,
+
+  const sql = `insert into attendance_records(name,years,item_task,day_1,day_2,day_3,day_4,
                day_5,day_6,day_7,day_8,day_9,day_10,day_11,day_12,day_13,day_14,day_15,day_16,
                day_17,day_18,day_19,day_20,day_21,day_22,day_23,day_24,day_25,day_26,day_27,day_28,
                day_29,day_30,day_31)
@@ -685,7 +683,7 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
 //人员考勤-编辑
 router.post('/clocking/edit', checkTokenMiddleware, async (req, res) => {
   const { id, field, value } = req.body
-  const sql = `UPDATE clocking_in_datas SET ${field} = '${value}' WHERE id = ${id}`
+  const sql = `UPDATE attendance_records SET ${field} = '${value}' WHERE id = ${id}`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -703,7 +701,7 @@ router.post('/clocking/edit', checkTokenMiddleware, async (req, res) => {
 //人员考勤-删除
 router.post('/clocking/delete', checkTokenMiddleware, async (req, res) => {
   const { id } = req.body
-  const sql = `DELETE FROM clocking_in_datas WHERE id = ${id}`
+  const sql = `DELETE FROM attendance_records WHERE id = ${id}`
   let dataList = await query( sql ) 
   if(dataList){
     res.json({
@@ -716,6 +714,50 @@ router.post('/clocking/delete', checkTokenMiddleware, async (req, res) => {
       msg:'请求失败...',
     })
   }
+});
+
+//人员考勤-下载
+router.get('/clocking/down', checkTokenMiddleware, async (req, res) => {
+  // 1. 创建数据
+  const entriesArray = Object.entries(req.query)
+  let conditions = entriesArray
+  .filter(e => e[1] !== 'undefined')
+  .map(e => `${e[0]} LIKE '%${e[1]}%'`)
+  .join(' AND ');
+  let sql = `select * from attendance_records WHERE ${conditions}` 
+  let rowDataPackets = await query( sql ) 
+
+  // 定义 Excel 头部
+  const data = [["姓名","年月","项目-任务包","1号","2号","3号","4号","5号",
+                 "6号","7号","8号","9号","10号","11号","12号","13号","14号",
+                 "15号","16号","17号","18号","19号","20号","21号","22号","23号",
+                 "24号","25号","26号","27号","28号","29号","30号","31号"]];
+  
+  // 遍历数据，转换格式
+  const formattedData = rowDataPackets.map(item => [item.name,item.years,item.item_task,item.day_1,
+    item.day_2,item.day_3,item.day_4,item.day_5,item.day_6,item.day_7,item.day_8,item.day_9,item.day_10,
+    item.day_11,item.day_12,item.day_13,item.day_14,item.day_15,item.day_16,item.day_17,item.day_18,item.day_19,
+    item.day_20,item.day_21,item.day_22,item.day_23,item.day_24,item.day_25,item.day_26,item.day_27,item.day_28,
+    item.day_29,item.day_30,item.day_31]);
+  
+  // 合并头部和数据
+  const finalData = [...data, ...formattedData];
+  
+  // 2. 创建工作簿和工作表
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.aoa_to_sheet(finalData);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "人员考勤数据");
+
+  // 3. 保存到服务器
+  const filePath = path.join(__dirname, "data.xlsx");
+  XLSX.writeFile(workbook, filePath);
+
+  // 4. 返回文件给前端
+  res.download(filePath, "人员考勤数据.xlsx", (err) => {
+      if (err) console.error("下载错误", err);
+      // 删除临时文件（可选）
+      fs.unlinkSync(filePath);
+  });
 });
 
 //培训师列表-查询
