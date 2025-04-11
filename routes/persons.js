@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-03-20 16:21:06
+ * @LastEditTime: 2025-04-11 14:25:44
  */
 const express = require('express');
 const moment = require('moment')
@@ -499,7 +499,7 @@ router.post('/portrait/edit', checkTokenMiddleware, async (req, res) => {
   }
 });
 
-//部门列表-删除
+//人员画像-删除
 router.post('/portrait/delete', checkTokenMiddleware,async (req, res) => {
   const { id } = req.body
   const sql = `UPDATE portrait SET is_delete = 1 where id = '${id}'`
@@ -518,103 +518,6 @@ router.post('/portrait/delete', checkTokenMiddleware,async (req, res) => {
 });
 
 //人员考勤-查询
-// router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
-//   const keysArray = Object.keys(req.query)
-//   const entriesArray = Object.entries(req.query)
-//   let sql
-//   if(keysArray.length > 0){
-//     let conditions = ''
-//     conditions = entriesArray.map((e)=>{
-//       return `${e[0]} LIKE '%${e[1]}%'`
-//     }).join(' AND ')
-//     sql = `select 
-//         id,date,base,department,name,
-//         JSON_EXTRACT(data_json,'$.day_1') AS day1, 
-//         JSON_EXTRACT(data_json,'$.day_2') AS day2, 
-//         JSON_EXTRACT(data_json,'$.day_3') AS day3, 
-//         JSON_EXTRACT(data_json,'$.day_4') AS day4, 
-//         JSON_EXTRACT(data_json,'$.day_5') AS day5, 
-//         JSON_EXTRACT(data_json,'$.day_6') AS day6, 
-//         JSON_EXTRACT(data_json,'$.day_7') AS day7, 
-//         JSON_EXTRACT(data_json,'$.day_8') AS day8, 
-//         JSON_EXTRACT(data_json,'$.day_9') AS day9,
-//         JSON_EXTRACT(data_json,'$.day_10') AS day10,
-//         JSON_EXTRACT(data_json,'$.day_11') AS day11,
-//         JSON_EXTRACT(data_json,'$.day_12') AS day12,
-//         JSON_EXTRACT(data_json,'$.day_13') AS day13,
-//         JSON_EXTRACT(data_json,'$.day_14') AS day14,
-//         JSON_EXTRACT(data_json,'$.day_15') AS day15,
-//         JSON_EXTRACT(data_json,'$.day_16') AS day16,
-//         JSON_EXTRACT(data_json,'$.day_17') AS day17,
-//         JSON_EXTRACT(data_json,'$.day_18') AS day18,
-//         JSON_EXTRACT(data_json,'$.day_19') AS day19,
-//         JSON_EXTRACT(data_json,'$.day_20') AS day20,
-//         JSON_EXTRACT(data_json,'$.day_21') AS day21,
-//         JSON_EXTRACT(data_json,'$.day_22') AS day22,
-//         JSON_EXTRACT(data_json,'$.day_23') AS day23,
-//         JSON_EXTRACT(data_json,'$.day_24') AS day24,
-//         JSON_EXTRACT(data_json,'$.day_25') AS day25,
-//         JSON_EXTRACT(data_json,'$.day_26') AS day26,
-//         JSON_EXTRACT(data_json,'$.day_27') AS day27,
-//         JSON_EXTRACT(data_json,'$.day_28') AS day28,
-//         JSON_EXTRACT(data_json,'$.day_29') AS day29,
-//         JSON_EXTRACT(data_json,'$.day_30') AS day30,
-//         JSON_EXTRACT(data_json,'$.day_31') AS day31,
-//         create_time
-//     from clocking_in WHERE ${conditions}`
-//   }else{
-//     sql = `select 
-//                 id,date,base,department,name,
-//                 JSON_EXTRACT(data_json,'$.day_1') AS day1, 
-//                 JSON_EXTRACT(data_json,'$.day_2') AS day2, 
-//                 JSON_EXTRACT(data_json,'$.day_3') AS day3, 
-//                 JSON_EXTRACT(data_json,'$.day_4') AS day4, 
-//                 JSON_EXTRACT(data_json,'$.day_5') AS day5, 
-//                 JSON_EXTRACT(data_json,'$.day_6') AS day6, 
-//                 JSON_EXTRACT(data_json,'$.day_7') AS day7, 
-//                 JSON_EXTRACT(data_json,'$.day_8') AS day8, 
-//                 JSON_EXTRACT(data_json,'$.day_9') AS day9,
-//                 JSON_EXTRACT(data_json,'$.day_10') AS day10,
-//                 JSON_EXTRACT(data_json,'$.day_11') AS day11,
-//                 JSON_EXTRACT(data_json,'$.day_12') AS day12,
-//                 JSON_EXTRACT(data_json,'$.day_13') AS day13,
-//                 JSON_EXTRACT(data_json,'$.day_14') AS day14,
-//                 JSON_EXTRACT(data_json,'$.day_15') AS day15,
-//                 JSON_EXTRACT(data_json,'$.day_16') AS day16,
-//                 JSON_EXTRACT(data_json,'$.day_17') AS day17,
-//                 JSON_EXTRACT(data_json,'$.day_18') AS day18,
-//                 JSON_EXTRACT(data_json,'$.day_19') AS day19,
-//                 JSON_EXTRACT(data_json,'$.day_20') AS day20,
-//                 JSON_EXTRACT(data_json,'$.day_21') AS day21,
-//                 JSON_EXTRACT(data_json,'$.day_22') AS day22,
-//                 JSON_EXTRACT(data_json,'$.day_23') AS day23,
-//                 JSON_EXTRACT(data_json,'$.day_24') AS day24,
-//                 JSON_EXTRACT(data_json,'$.day_25') AS day25,
-//                 JSON_EXTRACT(data_json,'$.day_26') AS day26,
-//                 JSON_EXTRACT(data_json,'$.day_27') AS day27,
-//                 JSON_EXTRACT(data_json,'$.day_28') AS day28,
-//                 JSON_EXTRACT(data_json,'$.day_29') AS day29,
-//                 JSON_EXTRACT(data_json,'$.day_30') AS day30,
-//                 JSON_EXTRACT(data_json,'$.day_31') AS day31,
-//                 create_time
-//                 from clocking_in`
-//               }
-//   let dataList = await query( sql ) 
-//   if(dataList){
-//     res.json({
-//       status:1,
-//       msg:'请求成功...',
-//       data:dataList
-//       })
-//   }else{
-//     res.json({
-//       status:0,
-//       msg:'请求失败...',
-//       })
-//   }
-// });
-
-//人员考勤-查询
 router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
   const keysArray = Object.keys(req.query)
   const entriesArray = Object.entries(req.query)
@@ -624,9 +527,45 @@ router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
     conditions = entriesArray.map((e)=>{
       return `${e[0]} LIKE '%${e[1]}%'`
     }).join(' AND ')
-    sql = `select * from attendance_records WHERE ${conditions}` 
+    // sql = `select *,
+    // (
+    //   (CASE WHEN day_1 REGEXP '全天假' THEN 8 WHEN day_1 REGEXP '上午假' THEN 2.5 WHEN day_1 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_2 REGEXP '全天假' THEN 8 WHEN day_2 REGEXP '上午假' THEN 2.5 WHEN day_2 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_3 REGEXP '全天假' THEN 8 WHEN day_3 REGEXP '上午假' THEN 2.5 WHEN day_3 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_4 REGEXP '全天假' THEN 8 WHEN day_4 REGEXP '上午假' THEN 2.5 WHEN day_4 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_5 REGEXP '全天假' THEN 8 WHEN day_5 REGEXP '上午假' THEN 2.5 WHEN day_5 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_6 REGEXP '全天假' THEN 8 WHEN day_6 REGEXP '上午假' THEN 2.5 WHEN day_6 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_7 REGEXP '全天假' THEN 8 WHEN day_7 REGEXP '上午假' THEN 2.5 WHEN day_7 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_8 REGEXP '全天假' THEN 8 WHEN day_8 REGEXP '上午假' THEN 2.5 WHEN day_8 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_9 REGEXP '全天假' THEN 8 WHEN day_9 REGEXP '上午假' THEN 2.5 WHEN day_9 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
+    //   (CASE WHEN day_10 REGEXP '全天假' THEN 8 WHEN day_10 REGEXP '上午假' THEN 2.5 WHEN day_10 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_11 REGEXP '全天假' THEN 8 WHEN day_11 REGEXP '上午假' THEN 2.5 WHEN day_11 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_12 REGEXP '全天假' THEN 8 WHEN day_12 REGEXP '上午假' THEN 2.5 WHEN day_12 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_13 REGEXP '全天假' THEN 8 WHEN day_13 REGEXP '上午假' THEN 2.5 WHEN day_13 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_14 REGEXP '全天假' THEN 8 WHEN day_14 REGEXP '上午假' THEN 2.5 WHEN day_14 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_15 REGEXP '全天假' THEN 8 WHEN day_15 REGEXP '上午假' THEN 2.5 WHEN day_15 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_16 REGEXP '全天假' THEN 8 WHEN day_16 REGEXP '上午假' THEN 2.5 WHEN day_16 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_17 REGEXP '全天假' THEN 8 WHEN day_17 REGEXP '上午假' THEN 2.5 WHEN day_17 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_18 REGEXP '全天假' THEN 8 WHEN day_18 REGEXP '上午假' THEN 2.5 WHEN day_18 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_19 REGEXP '全天假' THEN 8 WHEN day_19 REGEXP '上午假' THEN 2.5 WHEN day_19 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_20 REGEXP '全天假' THEN 8 WHEN day_20 REGEXP '上午假' THEN 2.5 WHEN day_20 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_21 REGEXP '全天假' THEN 8 WHEN day_21 REGEXP '上午假' THEN 2.5 WHEN day_21 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_22 REGEXP '全天假' THEN 8 WHEN day_22 REGEXP '上午假' THEN 2.5 WHEN day_22 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_23 REGEXP '全天假' THEN 8 WHEN day_23 REGEXP '上午假' THEN 2.5 WHEN day_23 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_24 REGEXP '全天假' THEN 8 WHEN day_24 REGEXP '上午假' THEN 2.5 WHEN day_24 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_25 REGEXP '全天假' THEN 8 WHEN day_25 REGEXP '上午假' THEN 2.5 WHEN day_25 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_26 REGEXP '全天假' THEN 8 WHEN day_26 REGEXP '上午假' THEN 2.5 WHEN day_26 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_27 REGEXP '全天假' THEN 8 WHEN day_27 REGEXP '上午假' THEN 2.5 WHEN day_27 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_28 REGEXP '全天假' THEN 8 WHEN day_28 REGEXP '上午假' THEN 2.5 WHEN day_28 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_29 REGEXP '全天假' THEN 8 WHEN day_29 REGEXP '上午假' THEN 2.5 WHEN day_29 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_30 REGEXP '全天假' THEN 8 WHEN day_30 REGEXP '上午假' THEN 2.5 WHEN day_30 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    //   (CASE WHEN day_31 REGEXP '全天假' THEN 8 WHEN day_31 REGEXP '上午假' THEN 2.5 WHEN day_31 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
+    // ) AS real_work_days_calc
+    // from attendance_records WHERE ${conditions}` 
+    sql = `select * from attendance_records WHERE ${conditions}`
   }
   let dataList = await query( sql ) 
+
   if(dataList){
     res.json({
       status:1,
@@ -649,7 +588,7 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
     if(item[0] !== null){
       for(let i = 0 ; i < item.length ; i ++){
         if(item[i] === null){
-          item[i] = `'0'`
+          item[i] = `''`
         }else{
           item[i] = `'${item[i]}'`
         }
@@ -661,7 +600,7 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
     return `(${e})` 
   }).join(',')
 
-  const sql = `insert into attendance_records(name,years,item_task,day_1,day_2,day_3,day_4,
+  const sql = `insert into attendance_records(years,name,base,group_manager,item_task,planned_work_days,day_1,day_2,day_3,day_4,
                day_5,day_6,day_7,day_8,day_9,day_10,day_11,day_12,day_13,day_14,day_15,day_16,
                day_17,day_18,day_19,day_20,day_21,day_22,day_23,day_24,day_25,day_26,day_27,day_28,
                day_29,day_30,day_31)
@@ -728,10 +667,11 @@ router.get('/clocking/down', checkTokenMiddleware, async (req, res) => {
   let rowDataPackets = await query( sql ) 
 
   // 定义 Excel 头部
-  const data = [["姓名","年月","项目-任务包","1号","2号","3号","4号","5号",
-                 "6号","7号","8号","9号","10号","11号","12号","13号","14号",
-                 "15号","16号","17号","18号","19号","20号","21号","22号","23号",
-                 "24号","25号","26号","27号","28号","29号","30号","31号"]];
+  const data = [["年月","姓名","基地","组长","项目-任务包","应出勤天数","实际出勤天数",
+                 "请假调休天数","加班总工时","培训期天数","在项天数","1号","2号","3号",
+                 "4号","5号","6号","7号","8号","9号","10号","11号","12号","13号",
+                 "14号","15号","16号","17号","18号","19号","20号","21号","22号",
+                 "23号","24号","25号","26号","27号","28号","29号","30号","31号"]];
   
   // 遍历数据，转换格式
   const formattedData = rowDataPackets.map(item => [item.name,item.years,item.item_task,item.day_1,
