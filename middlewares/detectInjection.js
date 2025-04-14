@@ -2,7 +2,7 @@
  * @Description: 处理检查和拦截注入攻击
  * @Author: wangyonghong
  * @Date: 2025-04-11 14:13:13
- * @LastEditTime: 2025-04-14 16:27:41
+ * @LastEditTime: 2025-04-14 16:50:41
  */
 
 const fs = require('fs');
@@ -16,8 +16,6 @@ const ognlPattern = /\$\{.*?(#|@).*?exec\(.*?\).*?\}/i;
 const suspiciousPaths = [
   /^\/$/,                     // 根路径
   /^\/sdk$/,                  // /sdk
-  /^\/api$/,                  // /api
-  /^\/login$/,                // /login
   /^\/pages\/.*\.action$/,    // /pages/*.action
   /^\/admin\b/,               // 后台
   /^\/debug\b/,               // 调试
