@@ -2,7 +2,7 @@
  * @Description: 处理检查和拦截注入攻击
  * @Author: wangyonghong
  * @Date: 2025-04-11 14:13:13
- * @LastEditTime: 2025-04-11 14:19:03
+ * @LastEditTime: 2025-04-14 15:57:40
  */
 
 const fs = require('fs');
@@ -12,7 +12,12 @@ const suspiciousPattern = /[\{\[]+.*[\*\+\|\/\-].*[\}\]]+/; // 匹配 {1*1}、[1
 const suspiciousPaths = [
   /^\/$/,                     // 根路径
   /^\/sdk$/,                  // /sdk
+  /^\/api$/,                  // /api
+  /^\/login$/,                // /login
   /^\/pages\/.*\.action$/,    // /pages/*.action
+  /^\/admin\b/,               // 后台
+  /^\/debug\b/,               // 调试
+  /^\/user[=\/]?.*$/          // /user, /user=1, /user/abc 等
 ];
 
 const logFile = path.join(__dirname, '../logs/suspicious.log');
