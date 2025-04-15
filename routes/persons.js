@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-04-11 14:25:44
+ * @LastEditTime: 2025-04-15 16:55:52
  */
 const express = require('express');
 const moment = require('moment')
@@ -521,51 +521,100 @@ router.post('/portrait/delete', checkTokenMiddleware,async (req, res) => {
 router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
   const keysArray = Object.keys(req.query)
   const entriesArray = Object.entries(req.query)
+  const month = entriesArray[0][1]
+  //处理统计字段:实际出勤天数、请假调休天数、加班总工时、培训期天数、在项天数
+  let data = await query( `select * from attendance_records where years = '${month}'`  ) 
+  for (const row of data) {
+    //实际出勤天数
+    let _real_work_days = 0;
+    //请假调休小时
+    let _leave_adjustment_days = 0;
+    //加班总工时
+    let _total_overtime_hours = 0;
+    //培训期小时
+    let _training_days = 0;
+    //在项天数
+    let _days_in_works = 0;
+    let count = 0;
+    for (let i = 1; i <= 31; i++) {
+      const val = row[`day_${i}`];
+      if(val){
+        count ++;
+      }
+      if (!val) continue;
+      if (val === '假(上0.5天)') {
+        _leave_adjustment_days += 4;
+        _real_work_days += 4;
+      } else if (val === '假(下0.5天)') {
+        _leave_adjustment_days += 4;
+        _real_work_days += 4;
+      } else if (val === '全天假') {
+        _leave_adjustment_days += 8;
+      } else if (val === '调休假') {
+        _leave_adjustment_days += 8;
+      } else if (val === '上午假') {
+        _leave_adjustment_days += 2.5;
+        _real_work_days += 5.5;
+      } else if (val === '下午假') {
+        _leave_adjustment_days += 5.5;
+        _real_work_days += 2.5;
+      } else if (val === '正常班') {
+        _real_work_days += 8;
+      } else if (val === '加班') {
+        _real_work_days += 8;
+        _total_overtime_hours += 8;
+      } else if (val === '加班半天假') {
+        _real_work_days += 0.5;
+        _total_overtime_hours += 0.5;
+      } else if (val === '加班上午假') {
+        _real_work_days += 5.5;
+        _total_overtime_hours += 5.5;
+      } else if (val === '加班下午假') {
+        _real_work_days += 2.5;
+        _total_overtime_hours += 2.5;
+      } else if (val === '培训期') {
+        _training_days += 8;
+      } else if (val === '未入职') {
+        _days_in_works += 1;
+      } else if (val === '已离职') {
+        _days_in_works += 1;
+      } else {
+        _leave_adjustment_days += 0;
+        _real_work_days += 0;
+        _total_overtime_hours += 0;
+        _training_days += 0;
+        _days_in_works += 0;
+      }
+    }
+
+    //实际出勤天数
+    const realWorkDays = Number((_real_work_days / 8).toFixed(3))
+    //请假调休天数
+    const leaveAdjustmentDays = Number((_leave_adjustment_days / 8).toFixed(3));
+    //加班总工时
+    const totalOvertimeHours = Number(_total_overtime_hours)
+    //培训期天数
+    const trainingDays = Number((_training_days / 8).toFixed(3))
+    //在项天数
+    const daysInWorks = Number(count - _days_in_works)
+
+    //更新到表字段
+    await query(
+      `UPDATE attendance_records SET real_work_days = ?, leave_adjustment_days = ?, total_overtime_hours = ?, training_days = ?, days_in_works = ? WHERE id = ?`,
+      [realWorkDays, leaveAdjustmentDays, totalOvertimeHours, trainingDays, daysInWorks, row.id]
+    );
+  }
+  //查询
   let sql
   if(keysArray.length > 0){
     let conditions = ''
     conditions = entriesArray.map((e)=>{
       return `${e[0]} LIKE '%${e[1]}%'`
     }).join(' AND ')
-    // sql = `select *,
-    // (
-    //   (CASE WHEN day_1 REGEXP '全天假' THEN 8 WHEN day_1 REGEXP '上午假' THEN 2.5 WHEN day_1 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_2 REGEXP '全天假' THEN 8 WHEN day_2 REGEXP '上午假' THEN 2.5 WHEN day_2 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_3 REGEXP '全天假' THEN 8 WHEN day_3 REGEXP '上午假' THEN 2.5 WHEN day_3 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_4 REGEXP '全天假' THEN 8 WHEN day_4 REGEXP '上午假' THEN 2.5 WHEN day_4 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_5 REGEXP '全天假' THEN 8 WHEN day_5 REGEXP '上午假' THEN 2.5 WHEN day_5 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_6 REGEXP '全天假' THEN 8 WHEN day_6 REGEXP '上午假' THEN 2.5 WHEN day_6 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_7 REGEXP '全天假' THEN 8 WHEN day_7 REGEXP '上午假' THEN 2.5 WHEN day_7 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_8 REGEXP '全天假' THEN 8 WHEN day_8 REGEXP '上午假' THEN 2.5 WHEN day_8 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_9 REGEXP '全天假' THEN 8 WHEN day_9 REGEXP '上午假' THEN 2.5 WHEN day_9 REGEXP '下午假' THEN 5.5 ELSE 0 END) +
-    //   (CASE WHEN day_10 REGEXP '全天假' THEN 8 WHEN day_10 REGEXP '上午假' THEN 2.5 WHEN day_10 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_11 REGEXP '全天假' THEN 8 WHEN day_11 REGEXP '上午假' THEN 2.5 WHEN day_11 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_12 REGEXP '全天假' THEN 8 WHEN day_12 REGEXP '上午假' THEN 2.5 WHEN day_12 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_13 REGEXP '全天假' THEN 8 WHEN day_13 REGEXP '上午假' THEN 2.5 WHEN day_13 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_14 REGEXP '全天假' THEN 8 WHEN day_14 REGEXP '上午假' THEN 2.5 WHEN day_14 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_15 REGEXP '全天假' THEN 8 WHEN day_15 REGEXP '上午假' THEN 2.5 WHEN day_15 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_16 REGEXP '全天假' THEN 8 WHEN day_16 REGEXP '上午假' THEN 2.5 WHEN day_16 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_17 REGEXP '全天假' THEN 8 WHEN day_17 REGEXP '上午假' THEN 2.5 WHEN day_17 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_18 REGEXP '全天假' THEN 8 WHEN day_18 REGEXP '上午假' THEN 2.5 WHEN day_18 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_19 REGEXP '全天假' THEN 8 WHEN day_19 REGEXP '上午假' THEN 2.5 WHEN day_19 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_20 REGEXP '全天假' THEN 8 WHEN day_20 REGEXP '上午假' THEN 2.5 WHEN day_20 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_21 REGEXP '全天假' THEN 8 WHEN day_21 REGEXP '上午假' THEN 2.5 WHEN day_21 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_22 REGEXP '全天假' THEN 8 WHEN day_22 REGEXP '上午假' THEN 2.5 WHEN day_22 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_23 REGEXP '全天假' THEN 8 WHEN day_23 REGEXP '上午假' THEN 2.5 WHEN day_23 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_24 REGEXP '全天假' THEN 8 WHEN day_24 REGEXP '上午假' THEN 2.5 WHEN day_24 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_25 REGEXP '全天假' THEN 8 WHEN day_25 REGEXP '上午假' THEN 2.5 WHEN day_25 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_26 REGEXP '全天假' THEN 8 WHEN day_26 REGEXP '上午假' THEN 2.5 WHEN day_26 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_27 REGEXP '全天假' THEN 8 WHEN day_27 REGEXP '上午假' THEN 2.5 WHEN day_27 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_28 REGEXP '全天假' THEN 8 WHEN day_28 REGEXP '上午假' THEN 2.5 WHEN day_28 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_29 REGEXP '全天假' THEN 8 WHEN day_29 REGEXP '上午假' THEN 2.5 WHEN day_29 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_30 REGEXP '全天假' THEN 8 WHEN day_30 REGEXP '上午假' THEN 2.5 WHEN day_30 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    //   (CASE WHEN day_31 REGEXP '全天假' THEN 8 WHEN day_31 REGEXP '上午假' THEN 2.5 WHEN day_31 REGEXP '下午假' THEN 5.5 ELSE 0 END) 
-    // ) AS real_work_days_calc
-    // from attendance_records WHERE ${conditions}` 
-    sql = `select * from attendance_records WHERE ${conditions}`
+    sql = `select * from attendance_records WHERE ${conditions}` 
   }
   let dataList = await query( sql ) 
-
+  //返回查询数据
   if(dataList){
     res.json({
       status:1,
@@ -667,15 +716,16 @@ router.get('/clocking/down', checkTokenMiddleware, async (req, res) => {
   let rowDataPackets = await query( sql ) 
 
   // 定义 Excel 头部
-  const data = [["年月","姓名","基地","组长","项目-任务包","应出勤天数","实际出勤天数",
-                 "请假调休天数","加班总工时","培训期天数","在项天数","1号","2号","3号",
+  const data = [["年月","姓名","基地","组长","项目-任务包","应出勤天数(天)","实际出勤天数(天)",
+                 "请假调休天数(天)","加班总工时(时)","培训期天数(天)","在项天数(天)","1号","2号","3号",
                  "4号","5号","6号","7号","8号","9号","10号","11号","12号","13号",
                  "14号","15号","16号","17号","18号","19号","20号","21号","22号",
                  "23号","24号","25号","26号","27号","28号","29号","30号","31号"]];
   
   // 遍历数据，转换格式
-  const formattedData = rowDataPackets.map(item => [item.name,item.years,item.item_task,item.day_1,
-    item.day_2,item.day_3,item.day_4,item.day_5,item.day_6,item.day_7,item.day_8,item.day_9,item.day_10,
+  const formattedData = rowDataPackets.map(item => [item.years,item.name,item.base,item.group_manager,item.item_task,
+    item.planned_work_days,item.real_work_days,item.leave_adjustment_days,item.total_overtime_hours,item.training_days,item.days_in_works,
+    item.day_1,item.day_2,item.day_3,item.day_4,item.day_5,item.day_6,item.day_7,item.day_8,item.day_9,item.day_10,
     item.day_11,item.day_12,item.day_13,item.day_14,item.day_15,item.day_16,item.day_17,item.day_18,item.day_19,
     item.day_20,item.day_21,item.day_22,item.day_23,item.day_24,item.day_25,item.day_26,item.day_27,item.day_28,
     item.day_29,item.day_30,item.day_31]);
