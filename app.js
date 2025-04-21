@@ -2,7 +2,7 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2024-12-31 10:29:52
+ * @LastEditTime: 2025-04-21 13:58:19
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -12,6 +12,8 @@ var fs = require('fs');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var logs = require('./middlewares/logsMiddlewares')
+//防止攻击注入中间件
+const detectInjection = require('./middlewares/detectInjection');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -49,11 +51,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(detectInjection);
+
 //设置路由前缀
 app.use('/', indexRouter);
 //操作日志
 app.use(logs)
-app.use('/user', usersRouter);
+app.use('/operator', usersRouter);
 app.use('/role', rolesRouter);
 app.use('/person', personsRouter);
 app.use('/config', configRouter);

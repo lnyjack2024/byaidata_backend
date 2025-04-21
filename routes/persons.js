@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-03-20 16:21:06
+ * @LastEditTime: 2025-04-15 16:55:52
  */
 const express = require('express');
 const moment = require('moment')
@@ -499,7 +499,7 @@ router.post('/portrait/edit', checkTokenMiddleware, async (req, res) => {
   }
 });
 
-//部门列表-删除
+//人员画像-删除
 router.post('/portrait/delete', checkTokenMiddleware,async (req, res) => {
   const { id } = req.body
   const sql = `UPDATE portrait SET is_delete = 1 where id = '${id}'`
@@ -518,106 +518,93 @@ router.post('/portrait/delete', checkTokenMiddleware,async (req, res) => {
 });
 
 //人员考勤-查询
-// router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
-//   const keysArray = Object.keys(req.query)
-//   const entriesArray = Object.entries(req.query)
-//   let sql
-//   if(keysArray.length > 0){
-//     let conditions = ''
-//     conditions = entriesArray.map((e)=>{
-//       return `${e[0]} LIKE '%${e[1]}%'`
-//     }).join(' AND ')
-//     sql = `select 
-//         id,date,base,department,name,
-//         JSON_EXTRACT(data_json,'$.day_1') AS day1, 
-//         JSON_EXTRACT(data_json,'$.day_2') AS day2, 
-//         JSON_EXTRACT(data_json,'$.day_3') AS day3, 
-//         JSON_EXTRACT(data_json,'$.day_4') AS day4, 
-//         JSON_EXTRACT(data_json,'$.day_5') AS day5, 
-//         JSON_EXTRACT(data_json,'$.day_6') AS day6, 
-//         JSON_EXTRACT(data_json,'$.day_7') AS day7, 
-//         JSON_EXTRACT(data_json,'$.day_8') AS day8, 
-//         JSON_EXTRACT(data_json,'$.day_9') AS day9,
-//         JSON_EXTRACT(data_json,'$.day_10') AS day10,
-//         JSON_EXTRACT(data_json,'$.day_11') AS day11,
-//         JSON_EXTRACT(data_json,'$.day_12') AS day12,
-//         JSON_EXTRACT(data_json,'$.day_13') AS day13,
-//         JSON_EXTRACT(data_json,'$.day_14') AS day14,
-//         JSON_EXTRACT(data_json,'$.day_15') AS day15,
-//         JSON_EXTRACT(data_json,'$.day_16') AS day16,
-//         JSON_EXTRACT(data_json,'$.day_17') AS day17,
-//         JSON_EXTRACT(data_json,'$.day_18') AS day18,
-//         JSON_EXTRACT(data_json,'$.day_19') AS day19,
-//         JSON_EXTRACT(data_json,'$.day_20') AS day20,
-//         JSON_EXTRACT(data_json,'$.day_21') AS day21,
-//         JSON_EXTRACT(data_json,'$.day_22') AS day22,
-//         JSON_EXTRACT(data_json,'$.day_23') AS day23,
-//         JSON_EXTRACT(data_json,'$.day_24') AS day24,
-//         JSON_EXTRACT(data_json,'$.day_25') AS day25,
-//         JSON_EXTRACT(data_json,'$.day_26') AS day26,
-//         JSON_EXTRACT(data_json,'$.day_27') AS day27,
-//         JSON_EXTRACT(data_json,'$.day_28') AS day28,
-//         JSON_EXTRACT(data_json,'$.day_29') AS day29,
-//         JSON_EXTRACT(data_json,'$.day_30') AS day30,
-//         JSON_EXTRACT(data_json,'$.day_31') AS day31,
-//         create_time
-//     from clocking_in WHERE ${conditions}`
-//   }else{
-//     sql = `select 
-//                 id,date,base,department,name,
-//                 JSON_EXTRACT(data_json,'$.day_1') AS day1, 
-//                 JSON_EXTRACT(data_json,'$.day_2') AS day2, 
-//                 JSON_EXTRACT(data_json,'$.day_3') AS day3, 
-//                 JSON_EXTRACT(data_json,'$.day_4') AS day4, 
-//                 JSON_EXTRACT(data_json,'$.day_5') AS day5, 
-//                 JSON_EXTRACT(data_json,'$.day_6') AS day6, 
-//                 JSON_EXTRACT(data_json,'$.day_7') AS day7, 
-//                 JSON_EXTRACT(data_json,'$.day_8') AS day8, 
-//                 JSON_EXTRACT(data_json,'$.day_9') AS day9,
-//                 JSON_EXTRACT(data_json,'$.day_10') AS day10,
-//                 JSON_EXTRACT(data_json,'$.day_11') AS day11,
-//                 JSON_EXTRACT(data_json,'$.day_12') AS day12,
-//                 JSON_EXTRACT(data_json,'$.day_13') AS day13,
-//                 JSON_EXTRACT(data_json,'$.day_14') AS day14,
-//                 JSON_EXTRACT(data_json,'$.day_15') AS day15,
-//                 JSON_EXTRACT(data_json,'$.day_16') AS day16,
-//                 JSON_EXTRACT(data_json,'$.day_17') AS day17,
-//                 JSON_EXTRACT(data_json,'$.day_18') AS day18,
-//                 JSON_EXTRACT(data_json,'$.day_19') AS day19,
-//                 JSON_EXTRACT(data_json,'$.day_20') AS day20,
-//                 JSON_EXTRACT(data_json,'$.day_21') AS day21,
-//                 JSON_EXTRACT(data_json,'$.day_22') AS day22,
-//                 JSON_EXTRACT(data_json,'$.day_23') AS day23,
-//                 JSON_EXTRACT(data_json,'$.day_24') AS day24,
-//                 JSON_EXTRACT(data_json,'$.day_25') AS day25,
-//                 JSON_EXTRACT(data_json,'$.day_26') AS day26,
-//                 JSON_EXTRACT(data_json,'$.day_27') AS day27,
-//                 JSON_EXTRACT(data_json,'$.day_28') AS day28,
-//                 JSON_EXTRACT(data_json,'$.day_29') AS day29,
-//                 JSON_EXTRACT(data_json,'$.day_30') AS day30,
-//                 JSON_EXTRACT(data_json,'$.day_31') AS day31,
-//                 create_time
-//                 from clocking_in`
-//               }
-//   let dataList = await query( sql ) 
-//   if(dataList){
-//     res.json({
-//       status:1,
-//       msg:'请求成功...',
-//       data:dataList
-//       })
-//   }else{
-//     res.json({
-//       status:0,
-//       msg:'请求失败...',
-//       })
-//   }
-// });
-
-//人员考勤-查询
 router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
   const keysArray = Object.keys(req.query)
   const entriesArray = Object.entries(req.query)
+  const month = entriesArray[0][1]
+  //处理统计字段:实际出勤天数、请假调休天数、加班总工时、培训期天数、在项天数
+  let data = await query( `select * from attendance_records where years = '${month}'`  ) 
+  for (const row of data) {
+    //实际出勤天数
+    let _real_work_days = 0;
+    //请假调休小时
+    let _leave_adjustment_days = 0;
+    //加班总工时
+    let _total_overtime_hours = 0;
+    //培训期小时
+    let _training_days = 0;
+    //在项天数
+    let _days_in_works = 0;
+    let count = 0;
+    for (let i = 1; i <= 31; i++) {
+      const val = row[`day_${i}`];
+      if(val){
+        count ++;
+      }
+      if (!val) continue;
+      if (val === '假(上0.5天)') {
+        _leave_adjustment_days += 4;
+        _real_work_days += 4;
+      } else if (val === '假(下0.5天)') {
+        _leave_adjustment_days += 4;
+        _real_work_days += 4;
+      } else if (val === '全天假') {
+        _leave_adjustment_days += 8;
+      } else if (val === '调休假') {
+        _leave_adjustment_days += 8;
+      } else if (val === '上午假') {
+        _leave_adjustment_days += 2.5;
+        _real_work_days += 5.5;
+      } else if (val === '下午假') {
+        _leave_adjustment_days += 5.5;
+        _real_work_days += 2.5;
+      } else if (val === '正常班') {
+        _real_work_days += 8;
+      } else if (val === '加班') {
+        _real_work_days += 8;
+        _total_overtime_hours += 8;
+      } else if (val === '加班半天假') {
+        _real_work_days += 0.5;
+        _total_overtime_hours += 0.5;
+      } else if (val === '加班上午假') {
+        _real_work_days += 5.5;
+        _total_overtime_hours += 5.5;
+      } else if (val === '加班下午假') {
+        _real_work_days += 2.5;
+        _total_overtime_hours += 2.5;
+      } else if (val === '培训期') {
+        _training_days += 8;
+      } else if (val === '未入职') {
+        _days_in_works += 1;
+      } else if (val === '已离职') {
+        _days_in_works += 1;
+      } else {
+        _leave_adjustment_days += 0;
+        _real_work_days += 0;
+        _total_overtime_hours += 0;
+        _training_days += 0;
+        _days_in_works += 0;
+      }
+    }
+
+    //实际出勤天数
+    const realWorkDays = Number((_real_work_days / 8).toFixed(3))
+    //请假调休天数
+    const leaveAdjustmentDays = Number((_leave_adjustment_days / 8).toFixed(3));
+    //加班总工时
+    const totalOvertimeHours = Number(_total_overtime_hours)
+    //培训期天数
+    const trainingDays = Number((_training_days / 8).toFixed(3))
+    //在项天数
+    const daysInWorks = Number(count - _days_in_works)
+
+    //更新到表字段
+    await query(
+      `UPDATE attendance_records SET real_work_days = ?, leave_adjustment_days = ?, total_overtime_hours = ?, training_days = ?, days_in_works = ? WHERE id = ?`,
+      [realWorkDays, leaveAdjustmentDays, totalOvertimeHours, trainingDays, daysInWorks, row.id]
+    );
+  }
+  //查询
   let sql
   if(keysArray.length > 0){
     let conditions = ''
@@ -627,6 +614,7 @@ router.get('/clocking/search', checkTokenMiddleware, async (req, res) => {
     sql = `select * from attendance_records WHERE ${conditions}` 
   }
   let dataList = await query( sql ) 
+  //返回查询数据
   if(dataList){
     res.json({
       status:1,
@@ -649,7 +637,7 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
     if(item[0] !== null){
       for(let i = 0 ; i < item.length ; i ++){
         if(item[i] === null){
-          item[i] = `'0'`
+          item[i] = `''`
         }else{
           item[i] = `'${item[i]}'`
         }
@@ -661,7 +649,7 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
     return `(${e})` 
   }).join(',')
 
-  const sql = `insert into attendance_records(name,years,item_task,day_1,day_2,day_3,day_4,
+  const sql = `insert into attendance_records(years,name,base,group_manager,item_task,planned_work_days,day_1,day_2,day_3,day_4,
                day_5,day_6,day_7,day_8,day_9,day_10,day_11,day_12,day_13,day_14,day_15,day_16,
                day_17,day_18,day_19,day_20,day_21,day_22,day_23,day_24,day_25,day_26,day_27,day_28,
                day_29,day_30,day_31)
@@ -728,14 +716,16 @@ router.get('/clocking/down', checkTokenMiddleware, async (req, res) => {
   let rowDataPackets = await query( sql ) 
 
   // 定义 Excel 头部
-  const data = [["姓名","年月","项目-任务包","1号","2号","3号","4号","5号",
-                 "6号","7号","8号","9号","10号","11号","12号","13号","14号",
-                 "15号","16号","17号","18号","19号","20号","21号","22号","23号",
-                 "24号","25号","26号","27号","28号","29号","30号","31号"]];
+  const data = [["年月","姓名","基地","组长","项目-任务包","应出勤天数(天)","实际出勤天数(天)",
+                 "请假调休天数(天)","加班总工时(时)","培训期天数(天)","在项天数(天)","1号","2号","3号",
+                 "4号","5号","6号","7号","8号","9号","10号","11号","12号","13号",
+                 "14号","15号","16号","17号","18号","19号","20号","21号","22号",
+                 "23号","24号","25号","26号","27号","28号","29号","30号","31号"]];
   
   // 遍历数据，转换格式
-  const formattedData = rowDataPackets.map(item => [item.name,item.years,item.item_task,item.day_1,
-    item.day_2,item.day_3,item.day_4,item.day_5,item.day_6,item.day_7,item.day_8,item.day_9,item.day_10,
+  const formattedData = rowDataPackets.map(item => [item.years,item.name,item.base,item.group_manager,item.item_task,
+    item.planned_work_days,item.real_work_days,item.leave_adjustment_days,item.total_overtime_hours,item.training_days,item.days_in_works,
+    item.day_1,item.day_2,item.day_3,item.day_4,item.day_5,item.day_6,item.day_7,item.day_8,item.day_9,item.day_10,
     item.day_11,item.day_12,item.day_13,item.day_14,item.day_15,item.day_16,item.day_17,item.day_18,item.day_19,
     item.day_20,item.day_21,item.day_22,item.day_23,item.day_24,item.day_25,item.day_26,item.day_27,item.day_28,
     item.day_29,item.day_30,item.day_31]);
