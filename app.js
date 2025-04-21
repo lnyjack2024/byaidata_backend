@@ -2,7 +2,7 @@
  * @Description: 主入口文件
  * @Author: wangyonghong
  * @Date: 2024-08-31 20:55:33
- * @LastEditTime: 2025-04-11 14:22:14
+ * @LastEditTime: 2025-04-16 10:21:36
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -48,7 +48,7 @@ app.use(detectInjection);
 app.use('/', indexRouter);
 //操作日志
 app.use(logs)
-app.use('/user', usersRouter);
+app.use('/operator', usersRouter);
 app.use('/role', rolesRouter);
 app.use('/person', personsRouter);
 app.use('/config', configRouter);
