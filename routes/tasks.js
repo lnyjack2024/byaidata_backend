@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-10-28 17:59:05
- * @LastEditTime: 2025-03-12 13:56:24
+ * @LastEditTime: 2025-05-12 14:12:05
  */
 const express = require('express');
 const moment = require('moment')
@@ -13,6 +13,7 @@ const XLSX = require('xlsx');
 const { formidable } = require('formidable');
 const checkTokenMiddleware = require('../middlewares/tokenMiddlewares')
 const { query } = require('../util/dbconfig');
+const { closeDelimiter } = require('ejs');
 // const client = require('../util/oss_detail')
 // const multer = require("multer");
 // const OSS = require("ali-oss");
@@ -124,6 +125,46 @@ router.post('/task/add', checkTokenMiddleware, async (req, res) => {
         msg:'请求失败...',
       })
     }
+});
+
+//任务包管理-每日作业数据-新增
+router.post('/task/day_add', checkTokenMiddleware, async (req, res) => {
+  let _data   = req.body.data
+  let item    = req.body.item
+  let base    = req.body.base
+  let task_id = req.body.task_id
+  const time  = moment().format('YYYY-MM-DD HH:mm:ss')
+  const user  = req.user.name
+  let arr = []
+  for (const row of _data) {
+    if (row[0] !== null) {
+      const newRow = row.map(val => val === null ? `''` : `'${val}'`);
+      newRow.push(`'${task_id}'`,`'${item}'`,`'${(parseFloat(row[4]) - parseFloat(row[7])) / parseFloat(row[4])}'`, `'${base}'`, `'${user}'`, `'${time}'`);
+      arr.push(newRow);
+    }
+  }
+
+  const val = arr.map((e)=>{
+    return `(${e})` 
+  }).join(',')
+
+  const sql = ` insert into tasks_day(date,time_frame,worker_name,work_amount,
+                  completed_amount,quality_amount,spot_check_amount,
+                  error_amount,task_hour,task_no_hour,task_no_hour_detail,
+                  overtime,item_timeliness,task_id,item,accuracy,base,user,create_time)
+                VALUES ${val}`
+  let dataList = await query( sql ) 
+  if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+    })
+  }else{
+    res.json({
+      status:0,
+      msg:'请求失败...',
+    })
+  }
 });
 
 //任务包管理-任务包列表-明细-导入
@@ -241,7 +282,7 @@ router.post('/task/upload', checkTokenMiddleware, async(req, res) => {
 
 //任务包管理-任务包列表-明细-查询
 router.get('/task/effect_detail', checkTokenMiddleware, async (req, res) => {
-    const sql = `select * from tasks_detail where task_id ='${req.query.id}' ORDER BY id DESC`
+    const sql = `select * from tasks_day where task_id ='${req.query.id}' ORDER BY id DESC`
     let dataList = await query( sql ) 
     if(dataList){
       res.json({
@@ -401,13 +442,149 @@ router.post('/task/check_add', checkTokenMiddleware, async (req, res) => {
       res.json({
         status:1,
         msg:'请求成功...',
-        })
+      })
     }else{
       res.json({
         status:0,
         msg:'请求失败...',
-        })
+      })
     }
+});
+
+//绩效管理-项目工时
+router.get('/task/item_time_search', checkTokenMiddleware, async (req, res) => {
+    let sql;
+    if(req.query.base === ''){
+       sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' ORDER BY id DESC`
+    }else{
+       sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' and base = '${req.query.base}' ORDER BY id DESC`
+    }
+    let dataList = await query( sql ) 
+    if(dataList){
+      res.json({
+        status:1,
+        msg:'请求成功...',
+        data:dataList
+      })
+    }else{
+      res.json({
+        status:0,
+        msg:'请求失败...',
+      })
+    }
+});
+
+//绩效管理-项目工时-下载
+router.get('/task/item_time_down', checkTokenMiddleware, async (req, res) => {
+    let sql;
+    if(req.query.base === ''){
+      sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' ORDER BY id DESC`
+    }else{
+      sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' and base = '${req.query.base}' ORDER BY id DESC`
+    }
+    let rowDataPackets = await query( sql ) 
+
+    // 定义 Excel 头部
+    const data = [["日期","时间段","基地","姓名","项目名称","生产工时",
+                   "非生产工时","非生产工时备注","加班工时"]];
+    
+    // 遍历数据，转换格式
+    const formattedData = rowDataPackets.map(item => [item.date,item.time_frame,item.base,item.worker_name,item.item,
+      item.task_hour,item.task_no_hour,item.task_no_hour_detail,item.overtime]);
+    
+    // 合并头部和数据
+    const finalData = [...data, ...formattedData];
+    
+    // 2. 创建工作簿和工作表
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(finalData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "项目工时数据");
+
+    // 3. 保存到服务器
+    const filePath = path.join(__dirname, "data.xlsx");
+    XLSX.writeFile(workbook, filePath);
+
+    // 4. 返回文件给前端
+    res.download(filePath, "项目工时数据.xlsx", (err) => {
+        if (err) console.error("下载错误", err);
+        // 删除临时文件（可选）
+        fs.unlinkSync(filePath);
+    });
+});
+
+//绩效管理-项目量级-下载
+router.get('/task/item_amount_down', checkTokenMiddleware, async (req, res) => {
+    let sql;
+    if(req.query.base === ''){
+      sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' ORDER BY id DESC`
+    }else{
+      sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' and base = '${req.query.base}' ORDER BY id DESC`
+    }
+    let rowDataPackets = await query( sql ) 
+
+    // 定义 Excel 头部
+    const data = [["日期","时间段","基地","姓名","项目名称","项目标准时效","标注量级","质检量级"]];
+    
+    // 遍历数据，转换格式
+    const formattedData = rowDataPackets.map(item => [item.date,item.time_frame,item.base,item.worker_name,item.item,
+      item.item_timeliness,item.work_amount,item.quality_amount]);
+    
+    // 合并头部和数据
+    const finalData = [...data, ...formattedData];
+    
+    // 2. 创建工作簿和工作表
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(finalData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "项目量级数据");
+
+    // 3. 保存到服务器
+    const filePath = path.join(__dirname, "data.xlsx");
+    XLSX.writeFile(workbook, filePath);
+
+    // 4. 返回文件给前端
+    res.download(filePath, "项目量级数据.xlsx", (err) => {
+        if (err) console.error("下载错误", err);
+        // 删除临时文件（可选）
+        fs.unlinkSync(filePath);
+    });
+});
+
+//绩效管理-项目正确率-下载
+router.get('/task/item_accuracy_down', checkTokenMiddleware, async (req, res) => {
+    let sql;
+    if(req.query.base === ''){
+      sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' ORDER BY id DESC`
+    }else{
+      sql = `select * from tasks_day where SUBSTRING(date, 1, 7) = '${req.query.years}' and base = '${req.query.base}' ORDER BY id DESC`
+    }
+    let rowDataPackets = await query( sql ) 
+
+    // 定义 Excel 头部
+    const data = [["日期","时间段","基地","姓名","项目名称","抽检总量",
+                   "错误总量","正确率"]];
+    
+    // 遍历数据，转换格式
+    const formattedData = rowDataPackets.map(item => [item.date,item.time_frame,item.base,item.worker_name,item.item,
+      item.spot_check_amount,item.error_amount,item.accuracy]);
+    
+    // 合并头部和数据
+    const finalData = [...data, ...formattedData];
+    
+    // 2. 创建工作簿和工作表
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(finalData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "项目正确率数据");
+
+    // 3. 保存到服务器
+    const filePath = path.join(__dirname, "data.xlsx");
+    XLSX.writeFile(workbook, filePath);
+
+    // 4. 返回文件给前端
+    res.download(filePath, "项目正确率数据.xlsx", (err) => {
+        if (err) console.error("下载错误", err);
+        // 删除临时文件（可选）
+        fs.unlinkSync(filePath);
+    });
 });
 
 module.exports = router;
