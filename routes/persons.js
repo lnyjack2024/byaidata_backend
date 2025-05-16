@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: wangyonghong
  * @Date: 2024-09-26 13:37:24
- * @LastEditTime: 2025-04-15 16:55:52
+ * @LastEditTime: 2025-05-14 15:10:54
  */
 const express = require('express');
 const moment = require('moment')
@@ -649,11 +649,7 @@ router.post('/clocking/add', checkTokenMiddleware, async (req, res) => {
     return `(${e})` 
   }).join(',')
 
-  const sql = `insert into attendance_records(years,name,base,group_manager,item_task,planned_work_days,day_1,day_2,day_3,day_4,
-               day_5,day_6,day_7,day_8,day_9,day_10,day_11,day_12,day_13,day_14,day_15,day_16,
-               day_17,day_18,day_19,day_20,day_21,day_22,day_23,day_24,day_25,day_26,day_27,day_28,
-               day_29,day_30,day_31)
-               VALUES ${val}`
+  const sql = `insert into attendance_records(years,name,base,group_manager,item_task,planned_work_days) VALUES ${val}`
   let dataList = await query( sql ) 
   if(dataList){
       res.json({
